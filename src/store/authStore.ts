@@ -11,6 +11,7 @@ export type User = {
   state?: string | null;
   stage?: string | null;
   lifeStage?: string | null;
+  profession?: string | null;
 };
 
 type AuthState = {

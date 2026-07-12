@@ -1,11 +1,12 @@
 const db = require("../config/db");
 const citizenService = require("./citizenService");
 const welfareService = require("./welfareService");
+const roadmapService = require("./roadmapService");
 const notificationQueries = require("../queries/notificationQueries");
 
 exports.runRecalculationWorkflowForCitizen = async (citizenId) => {
   console.log(`[Workflow] Starting welfare recalculation for citizen: ${citizenId}`);
-  
+
   // 1. Fetch current eligible schemes before recalculation
   const missedBefore = await welfareService.getMissedBenefits(citizenId).catch(() => ({ missedSchemes: [] }));
   const beforeIds = new Set(missedBefore.missedSchemes.map(s => s.id));
@@ -23,11 +24,10 @@ exports.runRecalculationWorkflowForCitizen = async (citizenId) => {
   let newNotifsCount = 0;
   for (const scheme of afterSchemes) {
     if (!beforeIds.has(scheme.id)) {
-      // Newly eligible scheme!
       await notificationQueries.createNotification(citizenId, {
         type: "newly_eligible",
-        title: "New Scheme Unlocked! 🎉",
-        message: `You are newly eligible to apply for "${scheme.name}" representing ₹${(scheme.benefitAmount || 0).toLocaleString()} in potential benefits.`,
+        title: "New Scheme Available",
+        message: `You are now eligible to apply for "${scheme.name}" representing \u20B9${(scheme.benefitAmount || 0).toLocaleString()} in potential benefits.`,
       }).catch(err => console.error("[Workflow] Failed to save newly_eligible notification:", err.message));
       newNotifsCount++;
     }
@@ -35,14 +35,44 @@ exports.runRecalculationWorkflowForCitizen = async (citizenId) => {
 
   // 5. Check for missing documents and trigger warnings
   const readiness = await citizenService.getDocumentReadiness(citizenId).catch(() => null);
-  console.log("[Workflow] Document Readiness refreshed", readiness);
   if (readiness && readiness.missing) {
     for (const doc of readiness.missing) {
       await notificationQueries.createNotification(citizenId, {
         type: "missing_documents",
-        title: "Missing Document Alert 📄",
+        title: "Missing Document Alert",
         message: `Upload your verified "${doc.name}" to unlock additional government welfare schemes.`,
       }).catch(err => console.error("[Workflow] Failed to save missing_documents notification:", err.message));
+      newNotifsCount++;
+    }
+  }
+
+  // 6. Check profile completeness
+  const profile = await citizenService.getCitizenProfile(citizenId).catch(() => null);
+  if (profile) {
+    const missingFields = [];
+    if (!profile.profession) missingFields.push("profession");
+    if (!profile.income) missingFields.push("income");
+    if (!profile.state) missingFields.push("state");
+    if (missingFields.length > 0) {
+      await notificationQueries.createNotification(citizenId, {
+        type: "profile_incomplete",
+        title: "Profile Incomplete",
+        message: `Complete your profile by adding: ${missingFields.join(", ")}. A complete profile ensures accurate scheme recommendations.`,
+      }).catch(err => console.error("[Workflow] Failed to save profile_incomplete notification:", err.message));
+      newNotifsCount++;
+    }
+  }
+
+  // 7. Roadmap milestone notification
+  const roadmap = await roadmapService.getRoadmap(citizenId).catch(() => null);
+  if (roadmap && roadmap.nextStage && roadmap.nextStage !== "Terminal State") {
+    const opportunities = roadmap.opportunities || [];
+    if (opportunities.length > 0) {
+      await notificationQueries.createNotification(citizenId, {
+        type: "roadmap_milestone",
+        title: "Upcoming Life Stage Transition",
+        message: `Your next life stage "${roadmap.nextStage}" has ${opportunities.length} scheme(s) available. Check your roadmap for details.`,
+      }).catch(err => console.error("[Workflow] Failed to save roadmap_milestone notification:", err.message));
       newNotifsCount++;
     }
   }
@@ -54,8 +84,7 @@ exports.runRecalculationWorkflowForCitizen = async (citizenId) => {
 exports.runGlobalRecalculationWorkflow = async () => {
   console.log("[Workflow] Starting Global Recalculation Engine background job...");
   const logEntries = [];
-  
-  // 1. Get all citizen IDs from Neo4j
+
   let citizens = [];
   try {
     citizens = await db.runQuery("MATCH (c:Citizen) RETURN c.id as id");

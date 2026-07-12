@@ -43,6 +43,10 @@ const schemes = [
     documentIds: ["doc-income", "doc-domicile"],
     stageIds: ["student"],
     stateIds: ["UP"],
+    description: "Financial assistance for students from Uttar Pradesh pursuing post-matriculation education.",
+    category: "Education",
+    governmentLevel: "State",
+    officialUrl: "https://scholarships.up.gov.in",
   },
   {
     id: "sch-002",
@@ -54,6 +58,10 @@ const schemes = [
     documentIds: ["doc-aadhaar", "doc-bank", "doc-land"],
     stageIds: ["farmer"],
     stateIds: ["UP"],
+    description: "Subsidy on agricultural inputs for eligible farmers in Uttar Pradesh.",
+    category: "Agriculture",
+    governmentLevel: "State",
+    officialUrl: "https://upagriculture.com",
   },
   {
     id: "sch-003",
@@ -65,6 +73,10 @@ const schemes = [
     documentIds: ["doc-aadhaar", "doc-age", "doc-bank"],
     stageIds: ["senior-citizen"],
     stateIds: ["UP"],
+    description: "Monthly pension for senior citizens with income below the eligibility threshold.",
+    category: "Pension",
+    governmentLevel: "State",
+    officialUrl: "https://sspy-up.gov.in",
   },
   {
     id: "sch-004",
@@ -76,6 +88,10 @@ const schemes = [
     documentIds: ["doc-aadhaar", "doc-bank", "doc-domicile"],
     stageIds: ["graduate", "worker"],
     stateIds: ["UP", "KA"],
+    description: "Seed grant for young entrepreneurs starting a business in Uttar Pradesh or Karnataka.",
+    category: "Entrepreneurship",
+    governmentLevel: "State",
+    officialUrl: "https://startupindia.gov.in",
   },
   {
     id: "sch-005",
@@ -87,6 +103,10 @@ const schemes = [
     documentIds: ["doc-aadhaar", "doc-income"],
     stageIds: ["student"],
     stateIds: [],
+    description: "Central government scholarship for economically disadvantaged students.",
+    category: "Education",
+    governmentLevel: "Central",
+    officialUrl: "https://scholarships.gov.in",
   },
 ];
 
@@ -214,7 +234,11 @@ const seed = async () => {
           s.financialBenefit = scheme.financialBenefit,
           s.minAge = scheme.minAge,
           s.maxAge = scheme.maxAge,
-          s.maxIncome = scheme.maxIncome
+          s.maxIncome = scheme.maxIncome,
+          s.description = scheme.description,
+          s.category = scheme.category,
+          s.governmentLevel = scheme.governmentLevel,
+          s.officialUrl = scheme.officialUrl
         WITH s, scheme
         OPTIONAL MATCH (s)-[oldDoc:REQUIRES_DOCUMENT]->(:Document)
         DELETE oldDoc

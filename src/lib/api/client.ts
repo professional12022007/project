@@ -19,7 +19,7 @@ if (!BASE_URL) {
   throw new Error("FATAL CONFIG ERROR: EXPO_PUBLIC_API_BASE_URL environment variable is missing.");
 }
 
-const DEFAULT_TIMEOUT = 15_000; // 15 seconds
+const DEFAULT_TIMEOUT = 45_000; // 45s — must exceed backend Sarvam AI timeout (35s)
 
 // ---------------------------------------------------------------------------
 // Create the base Axios instance
@@ -107,19 +107,11 @@ export async function post<T, D = unknown>(
 ): Promise<T> {
   const { setIsOffline } = useNetworkStore.getState();
   try {
-    console.log('Sending POST', url);
     const response = await apiClient.post<T, AxiosResponse<T>, D>(url, data, config);
-    console.log('Status:', response.status);
-    console.log('Response:', response.data);
     setIsOffline(false);
     return response.data;
   } catch (error: any) {
-    console.log('ERROR NAME:', error.name);
-    console.log('ERROR MESSAGE:', error.message);
-    console.log('ERROR CODE:', error.code);
-    console.log('ERROR RESPONSE:', error.response?.data);
-    console.log('ERROR STATUS:', error.response?.status);
-    console.log('ERROR CONFIG:', error.config);
+
     const isNetworkError = !error.response || error.code === 'ECONNABORTED' || error.message.includes('Network Error');
     if (isNetworkError) {
       setIsOffline(true);

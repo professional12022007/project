@@ -16,5 +16,6 @@ router.get("/graph-visual/:citizenId", authMiddleware, authMiddleware.authorizeC
 router.get("/similar-citizens/:citizenId", authMiddleware, authMiddleware.authorizeCitizen, rateLimiter.graphLimiter, intelCtrl.getSimilarCitizens);
 router.get("/explain-eligibility/:citizenId/:schemeId", authMiddleware, authMiddleware.authorizeCitizen, rateLimiter.graphLimiter, intelCtrl.getExplainEligibility);
 router.get("/predictive-eligibility/:citizenId", authMiddleware, authMiddleware.authorizeCitizen, rateLimiter.graphLimiter, intelCtrl.getPredictiveEligibility);
+router.get("/scheme/:schemeId", authMiddleware, authMiddleware.authorizeCitizen, rateLimiter.graphLimiter, intelCtrl.getSchemeDetails);
 
 module.exports = router;

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { Settings, Bell, FileText, Shield, Network, Circle as HelpCircle, Info, ChevronRight, Landmark, Map as MapIcon, Share2, LogOut, Sun, Moon } from 'lucide-react-native';
 import { BottomTabParamList } from '@/navigation/RootNavigator';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 import { Palette } from '@/constants/theme';
 
-// Sub-screens (loaded lazily via local state)
 import { AccountSettingsScreen } from '@/screens/profile/AccountSettingsScreen';
 import { NotificationsScreen } from '@/screens/profile/NotificationsScreen';
 import { PrivacySecurityScreen } from '@/screens/profile/PrivacySecurityScreen';
@@ -21,13 +22,23 @@ type SubScreen = 'account' | 'notifications' | 'privacy' | 'help' | 'about' | 'g
 type ProfileRouteProp = RouteProp<BottomTabParamList, 'Profile'>;
 type ProfileNavProp = BottomTabNavigationProp<BottomTabParamList, 'Profile'>;
 
+const MENU_ITEMS: { label: string; icon: React.ReactNode; screen: SubScreen }[] = [
+  { label: 'Account Settings', icon: <Settings size={20} color={Palette.primary} strokeWidth={2} />, screen: 'account' },
+  { label: 'Notifications', icon: <Bell size={20} color={Palette.primary} strokeWidth={2} />, screen: 'notifications' },
+  { label: 'My Documents', icon: <FileText size={20} color={Palette.primary} strokeWidth={2} />, screen: 'documents' },
+  { label: 'Privacy & Security', icon: <Shield size={20} color={Palette.primary} strokeWidth={2} />, screen: 'privacy' },
+  { label: 'My Welfare Network', icon: <Network size={20} color={Palette.primary} strokeWidth={2} />, screen: 'graph-visual' },
+  { label: 'Help & Support', icon: <HelpCircle size={20} color={Palette.primary} strokeWidth={2} />, screen: 'help' },
+  { label: 'About', icon: <Info size={20} color={Palette.primary} strokeWidth={2} />, screen: 'about' },
+];
+
 export function ProfileScreen() {
   const { user, logout } = useAuthStore();
+  const { mode, toggle } = useThemeStore();
   const [activeScreen, setActiveScreen] = useState<SubScreen>(null);
   const route = useRoute<ProfileRouteProp>();
   const navigation = useNavigation<ProfileNavProp>();
 
-  // Detect and apply screen routing parameter
   useEffect(() => {
     if (route.params?.screen) {
       const screenParam = route.params.screen;
@@ -38,7 +49,6 @@ export function ProfileScreen() {
     }
   }, [route.params?.screen, navigation]);
 
-  // Render sub-screens inside the same ProfileScreen render cycle — no Stack needed
   if (activeScreen === 'account') return <AccountSettingsScreen onBack={() => setActiveScreen(null)} />;
   if (activeScreen === 'notifications') return <NotificationsScreen onBack={() => setActiveScreen(null)} />;
   if (activeScreen === 'privacy') return <PrivacySecurityScreen onBack={() => setActiveScreen(null)} />;
@@ -47,94 +57,131 @@ export function ProfileScreen() {
   if (activeScreen === 'graph-visual') return <GraphVisualizer onBack={() => setActiveScreen(null)} />;
   if (activeScreen === 'documents') return <MyDocumentsScreen onBack={() => setActiveScreen(null)} />;
 
-  const menuItems: { label: string; icon: string; screen: SubScreen }[] = [
-    { label: 'Account Settings', icon: '⚙️', screen: 'account' },
-    { label: 'Notifications', icon: '🔔', screen: 'notifications' },
-    { label: 'My Documents', icon: '📁', screen: 'documents' },
-    { label: 'Privacy & Security', icon: '🔒', screen: 'privacy' },
-    { label: 'My Welfare Network', icon: '🕸️', screen: 'graph-visual' },
-    { label: 'Help & Support', icon: '❓', screen: 'help' },
-    { label: 'About', icon: 'ℹ️', screen: 'about' },
-  ];
-
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+    <SafeAreaView style={s.container} edges={['top']}>
       <ScrollView
-        className="flex-1"
         contentContainerStyle={{ paddingBottom: 32 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View className="px-6 pt-6 pb-2">
-          <Text className="text-text-primary text-3xl font-bold">Profile</Text>
+        <View style={s.header}>
+          <Text style={s.pageTitle}>Profile</Text>
+          <TouchableOpacity onPress={toggle} style={s.themeBtn} activeOpacity={0.7}>
+            {mode === 'dark' ? (
+              <Sun size={18} color={Palette.textSecondary} strokeWidth={2} />
+            ) : (
+              <Moon size={18} color={Palette.textSecondary} strokeWidth={2} />
+            )}
+          </TouchableOpacity>
         </View>
 
-        {/* Avatar & Info */}
-        <View className="items-center py-8">
-          <View className="w-24 h-24 rounded-full bg-primary items-center justify-center mb-4 shadow-lg">
-            <Text className="text-white text-4xl font-bold">
+        <View style={s.avatarArea}>
+          <View style={s.avatarCircle}>
+            <Text style={s.avatarText}>
               {user?.name?.charAt(0)?.toUpperCase() ?? 'U'}
             </Text>
           </View>
-          <Text className="text-text-primary text-xl font-bold mb-1">
-            {user?.name ?? 'User Name'}
-          </Text>
-          <Text className="text-text-secondary text-sm">
-            {user?.email ?? 'user@example.com'}
-          </Text>
-          <View className="mt-3 px-4 py-1 rounded-full bg-primary/20 border border-primary/30">
-            <Text className="text-primary text-xs font-semibold">BenefitOS Member</Text>
+          <Text style={s.userName}>{user?.name ?? 'User Name'}</Text>
+          <Text style={s.userEmail}>{user?.email ?? 'user@example.com'}</Text>
+          {user?.profession && (
+            <Text style={s.userProfession}>{user.profession}</Text>
+          )}
+          <View style={s.memberBadge}>
+            <Text style={s.memberBadgeText}>BenefitOS Member</Text>
           </View>
         </View>
 
-        {/* Stats — clickable shortcuts */}
-        <View className="mx-6 flex-row gap-3 mb-8">
+        <View style={s.statsRow}>
           {[
-            { label: 'Schemes', value: '📋', onPress: () => navigation.navigate('Roadmap') },
-            { label: 'Roadmap', value: '🗺️', onPress: () => navigation.navigate('Roadmap') },
-            { label: 'Graph', value: '🔗', onPress: () => setActiveScreen('graph-visual') },
+            { label: 'Schemes', value: '0', icon: <Landmark size={16} color={Palette.primary} strokeWidth={2} />, onPress: () => navigation.navigate('Schemes') },
+            { label: 'Roadmap', value: '5', icon: <MapIcon size={16} color={Palette.primary} strokeWidth={2} />, onPress: () => navigation.navigate('Roadmap') },
+            { label: 'Graph', value: 'View', icon: <Network size={16} color={Palette.primary} strokeWidth={2} />, onPress: () => setActiveScreen('graph-visual') },
           ].map((s) => (
             <TouchableOpacity
               key={s.label}
-              className="flex-1 rounded-2xl bg-background-card p-4 items-center"
-              style={{ borderWidth: 1, borderColor: Palette.border }}
+              style={s.statCard}
               activeOpacity={0.7}
               onPress={s.onPress}
             >
-              <Text className="text-primary text-2xl font-bold">{s.value}</Text>
-              <Text className="text-text-muted text-xs mt-1">{s.label}</Text>
+              {s.icon}
+              <Text style={s.statValue}>{s.value}</Text>
+              <Text style={s.statLabel}>{s.label}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Menu — now fully navigable */}
-        <View className="mx-6 rounded-2xl bg-background-card overflow-hidden" style={{ borderWidth: 1, borderColor: Palette.border }}>
-          {menuItems.map((item, idx) => (
+        <View style={s.menuCard}>
+          {MENU_ITEMS.map((item, idx) => (
             <TouchableOpacity
               key={item.label}
-              className="flex-row items-center px-5 py-4"
-              style={idx < menuItems.length - 1 ? { borderBottomWidth: 1, borderBottomColor: Palette.border } : {}}
+              style={[s.menuRow, idx < MENU_ITEMS.length - 1 && { borderBottomWidth: 1, borderBottomColor: Palette.border }]}
               activeOpacity={0.7}
               onPress={() => setActiveScreen(item.screen)}
             >
-              <Text className="text-lg mr-4">{item.icon}</Text>
-              <Text className="flex-1 text-text-primary font-medium">{item.label}</Text>
-              <Text className="text-text-muted text-base">›</Text>
+              <View style={s.menuIconBox}>{item.icon}</View>
+              <Text style={s.menuLabel}>{item.label}</Text>
+              <ChevronRight size={18} color={Palette.textMuted} strokeWidth={2} />
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Logout */}
-        <View className="mx-6 mt-4">
-          <TouchableOpacity
-            className="rounded-2xl bg-secondary/10 border border-secondary/20 py-4 items-center"
-            onPress={logout}
-            activeOpacity={0.8}
-          >
-            <Text className="text-secondary font-semibold">Log Out</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={s.logoutBtn} onPress={logout} activeOpacity={0.8}>
+          <LogOut size={18} color={Palette.error} strokeWidth={2} />
+          <Text style={s.logoutText}>Log Out</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const s = StyleSheet.create({
+  container: { flex: 1, backgroundColor: Palette.background },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingTop: 16, paddingBottom: 8 },
+  pageTitle: { color: Palette.textPrimary, fontSize: 30, fontWeight: '800' },
+  themeBtn: {
+    padding: 10, borderRadius: 20, borderWidth: 1,
+    borderColor: Palette.border, backgroundColor: Palette.surface,
+  },
+  avatarArea: { alignItems: 'center', paddingVertical: 32 },
+  avatarCircle: {
+    width: 96, height: 96, borderRadius: 48,
+    backgroundColor: Palette.primary,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 16,
+  },
+  avatarText: { color: Palette.white, fontSize: 36, fontWeight: '800' },
+  userName: { color: Palette.textPrimary, fontSize: 22, fontWeight: '700', marginBottom: 4 },
+  userEmail: { color: Palette.textSecondary, fontSize: 14, marginBottom: 4 },
+  userProfession: { color: Palette.textMuted, fontSize: 13, marginBottom: 12 },
+  memberBadge: {
+    paddingHorizontal: 14, paddingVertical: 4, borderRadius: 20,
+    backgroundColor: Palette.primaryA18, borderWidth: 1, borderColor: Palette.primaryA33,
+  },
+  memberBadgeText: { color: Palette.primary, fontSize: 12, fontWeight: '600' },
+  statsRow: { flexDirection: 'row', gap: 12, marginHorizontal: 24, marginBottom: 32 },
+  statCard: {
+    flex: 1, borderRadius: 16, backgroundColor: Palette.surface,
+    borderWidth: 1, borderColor: Palette.border,
+    padding: 16, alignItems: 'center', gap: 6,
+  },
+  statValue: { color: Palette.primary, fontSize: 18, fontWeight: '800' },
+  statLabel: { color: Palette.textMuted, fontSize: 12 },
+  menuCard: {
+    marginHorizontal: 24, borderRadius: 20, backgroundColor: Palette.surface,
+    borderWidth: 1, borderColor: Palette.border, overflow: 'hidden',
+  },
+  menuRow: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 16, paddingVertical: 16, gap: 14,
+  },
+  menuIconBox: {
+    width: 36, height: 36, borderRadius: 10,
+    backgroundColor: Palette.primaryA12, alignItems: 'center', justifyContent: 'center',
+  },
+  menuLabel: { flex: 1, color: Palette.textPrimary, fontSize: 15, fontWeight: '500' },
+  logoutBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    marginHorizontal: 24, marginTop: 16,
+    borderRadius: 14, paddingVertical: 14,
+    backgroundColor: Palette.errorA15, borderWidth: 1, borderColor: Palette.errorA40,
+  },
+  logoutText: { color: Palette.error, fontSize: 15, fontWeight: '700' },
+});

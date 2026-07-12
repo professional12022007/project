@@ -98,7 +98,7 @@ export function PrivacySecurityScreen({ onBack }: Props) {
         <Text style={s.sectionHeader}>What Data We Store</Text>
         <View style={s.card}>
           <Text style={s.privacyText}>
-            BenefitOS stores the following data about you in a Neo4j graph database hosted on your
+            BenefitOS stores the following data about you in a secure
             own self-managed instance:{'\n\n'}
             {'• '}Name, email address, and a bcrypt-hashed password{'\n'}
             {'• '}Age, annual income bracket, and home state{'\n'}

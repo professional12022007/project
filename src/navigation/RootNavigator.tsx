@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform, View, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as SecureStore from 'expo-secure-store';
@@ -8,15 +9,40 @@ import { HomeScreen } from '@/screens/HomeScreen';
 import { ProfileScreen } from '@/screens/ProfileScreen';
 import { RoadmapScreen } from '@/screens/RoadmapScreen';
 import { AssistantScreen } from '@/screens/AssistantScreen';
+import { SchemesScreen } from '@/screens/SchemesScreen';
+import { SchemeDetailScreen } from '@/screens/SchemeDetailScreen';
 import { LoginScreen } from '@/screens/LoginScreen';
 import { SignUpScreen } from '@/screens/SignUpScreen';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 import { authService } from '@/lib/api/services/authService';
 import { Palette } from '@/constants/theme';
+import { Shield } from 'lucide-react-native';
+
+export type SchemeStackParamList = {
+  SchemesList: undefined;
+  SchemeDetail: { schemeId: string; schemeName: string };
+};
+
+const SchemeStack = createNativeStackNavigator<SchemeStackParamList>();
+
+function SchemesStackNavigator() {
+  return (
+    <SchemeStack.Navigator screenOptions={{ headerShown: false }}>
+      <SchemeStack.Screen name="SchemesList" component={SchemesScreen} />
+      <SchemeStack.Screen
+        name="SchemeDetail"
+        component={SchemeDetailScreen}
+        options={{ headerShown: true, headerTintColor: Palette.textPrimary, headerStyle: { backgroundColor: Palette.surface }, headerTitleStyle: { fontSize: 16, fontWeight: '700' } }}
+      />
+    </SchemeStack.Navigator>
+  );
+}
 
 export type BottomTabParamList = {
   Home: undefined;
+  Schemes: undefined;
   Profile: { screen?: 'account' | 'notifications' | 'privacy' | 'help' | 'about' | 'graph-visual' | 'documents' } | undefined;
   Roadmap: undefined;
   Assistant: undefined;
@@ -58,6 +84,7 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Schemes" component={SchemesStackNavigator} />
       <Tab.Screen name="Roadmap" component={RoadmapScreen} />
       <Tab.Screen name="Assistant" component={AssistantScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
@@ -67,8 +94,13 @@ function MainTabs() {
 
 export function RootNavigator() {
   const { isAuthenticated, setToken, setUser, logout } = useAuthStore();
+  const { mode, init } = useThemeStore();
   const [sessionRestored, setSessionRestored] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
+
+  useEffect(() => {
+    init();
+  }, [init]);
 
   useEffect(() => {
     async function restore() {
@@ -113,8 +145,16 @@ export function RootNavigator() {
 
   if (!sessionRestored) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Palette.background }}>
-        <ActivityIndicator color={Palette.primary} size="large" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Palette.background, gap: 16 }}>
+        <View style={{
+          width: 64, height: 64, borderRadius: 32,
+          backgroundColor: Palette.primary,
+          alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Shield size={28} color={Palette.white} strokeWidth={2.5} />
+        </View>
+        <Text style={{ color: Palette.textPrimary, fontSize: 22, fontWeight: '800' }}>BenefitOS</Text>
+        <ActivityIndicator color={Palette.primary} size="small" />
       </View>
     );
   }

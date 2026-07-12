@@ -83,6 +83,13 @@ exports.getMissedBenefits = (citizenId) =>
       s.id as id,
       s.name as name,
       s.financialBenefit as benefitAmount,
+      s.description as description,
+      s.category as category,
+      s.governmentLevel as governmentLevel,
+      s.officialUrl as officialUrl,
+      s.minAge as minAge,
+      s.maxAge as maxAge,
+      s.maxIncome as maxIncome,
       CASE WHEN size(missingDocs) > 0
         THEN "Missing documents: " + reduce(text = "", doc IN missingDocs |
           text + CASE WHEN text = "" THEN "" ELSE ", " END + doc.name
@@ -216,4 +223,33 @@ exports.checkExplainableEligibility = (citizenId, schemeId) =>
       COALESCE(stage.name, c.stage) as citizenStage
     `,
     { citizenId, schemeId },
+  );
+
+exports.getSchemeDetails = (schemeId) =>
+  runQuery(
+    `
+    MATCH (s:Scheme {id: $schemeId})
+    OPTIONAL MATCH (s)-[:REQUIRES_DOCUMENT]->(d:Document)
+    OPTIONAL MATCH (s)-[:TARGETS_STAGE]->(stage:LifeStage)
+    OPTIONAL MATCH (s)-[:AVAILABLE_IN]->(state:State)
+    WITH s,
+      collect(DISTINCT { id: d.id, name: d.name }) AS documents,
+      collect(DISTINCT stage.name) AS stages,
+      collect(DISTINCT state.name) AS states
+    RETURN
+      s.id as id,
+      s.name as name,
+      s.description as description,
+      s.financialBenefit as benefitAmount,
+      s.category as category,
+      s.governmentLevel as governmentLevel,
+      s.officialUrl as officialUrl,
+      s.minAge as minAge,
+      s.maxAge as maxAge,
+      s.maxIncome as maxIncome,
+      documents,
+      stages,
+      states
+    `,
+    { schemeId },
   );

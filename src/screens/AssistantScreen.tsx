@@ -24,9 +24,11 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Bot, Mic, Send, Sun, Moon } from 'lucide-react-native';
 
 import { assistantService } from '@/lib/api/services/assistantService';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 
 const MIN_TYPING_MS = 500; // guaranteed minimum typing indicator duration
 
@@ -105,7 +107,7 @@ const INITIAL_MESSAGES: Message[] = [
     id: '0',
     role: 'assistant',
     content:
-      "Hi! I'm your Benefitos AI Assistant 🤖\n\nI'm here to help you navigate your benefits, answer questions about your roadmap, and guide you through the platform. How can I help you today?",
+      "Hi! I'm your BenefitOS AI Assistant.\n\nI'm here to help you navigate your benefits, answer questions about your roadmap, and guide you through the platform. How can I help you today?",
     timestamp: new Date(),
   },
 ];
@@ -131,6 +133,7 @@ const LANGUAGES = [
 
 export function AssistantScreen() {
   const { user } = useAuthStore();
+  const { mode, toggle } = useThemeStore();
   const tabBarHeight = useBottomTabBarHeight();
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [inputText, setInputText] = useState('');
@@ -238,11 +241,14 @@ export function AssistantScreen() {
       };
       setMessages((prev) => [...prev, assistantMsg]);
       void playAssistantReply(response.answer, selectedLang);
-    } catch {
+    } catch (err: any) {
+      const isTimeout = err?.code === 'ECONNABORTED' || err?.name === 'AxiosError';
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Sorry, I couldn\'t reach the server. Please check your connection and try again.',
+        content: isTimeout
+          ? 'The AI service is taking longer than expected. Please try again in a moment.'
+          : 'Unable to connect to the assistant service. Please check your connection and try again.',
         timestamp: new Date(),
         isError: true,
       };
@@ -314,7 +320,7 @@ export function AssistantScreen() {
         {/* Header */}
         <View className="px-6 pt-6 pb-4 flex-row items-center">
           <View className="w-10 h-10 rounded-full bg-accent/20 border border-accent/30 items-center justify-center mr-3">
-            <Text className="text-lg">🤖</Text>
+            <Bot size={20} color={Palette.accent} strokeWidth={2} />
           </View>
           <View className="flex-1">
             <Text className="text-text-primary text-lg font-bold">AI Assistant</Text>
@@ -328,6 +334,9 @@ export function AssistantScreen() {
               </Text>
             </View>
           </View>
+          <TouchableOpacity onPress={toggle} className="p-2.5 rounded-full border" style={{ borderColor: Palette.border, backgroundColor: Palette.surface }} activeOpacity={0.7}>
+            {mode === 'dark' ? <Sun size={18} color={Palette.textSecondary} strokeWidth={2} /> : <Moon size={18} color={Palette.textSecondary} strokeWidth={2} />}
+          </TouchableOpacity>
         </View>
 
         {/* Language Selector */}
@@ -493,15 +502,13 @@ export function AssistantScreen() {
                 }}
               />
             ) : (
-              <Text style={{ color: Palette.textSecondary, fontSize: 16 }}>🎙</Text>
+              <Mic size={18} color="#FFFFFF" strokeWidth={2} />
             )}
           </TouchableOpacity>
 
           {/* Send button */}
           <TouchableOpacity
             onPress={() => {
-              console.log('AssistantScreen -> Send button pressed');
-              console.log('Question:', inputText);
               sendMessage(inputText);
             }}
             disabled={!inputText.trim() || isTyping || isRecording}
@@ -511,7 +518,7 @@ export function AssistantScreen() {
             }}
             activeOpacity={0.8}
           >
-            <Text className="text-white text-base">↑</Text>
+            <Send size={18} color={Palette.white} strokeWidth={2.5} />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

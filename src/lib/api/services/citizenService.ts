@@ -42,7 +42,7 @@ export const citizenService = {
   getProfile: (citizenId: string) =>
     get<CitizenProfile>(`/api/citizen/${citizenId}`),
 
-  /** Fetch Neo4j graph nodes and relations dataset. */
+  /** Fetch graph nodes and relations dataset. */
   getGraphVisual: (citizenId: string) =>
     get<GraphNodeData>(`/api/graph-visual/${citizenId}`),
 

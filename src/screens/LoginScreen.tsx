@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,23 +9,65 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Animated,
+  Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Shield, Eye, EyeOff, Sun, Moon, CircleCheck as CheckCircle2, RefreshCw } from 'lucide-react-native';
 import { authService } from '@/lib/api/services/authService';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 import { Palette } from '@/constants/theme';
 
 interface Props {
   onNavigateToSignUp: () => void;
 }
 
+function generateCaptcha() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let result = '';
+  for (let i = 0; i < 5; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 export function LoginScreen({ onNavigateToSignUp }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [captcha, setCaptcha] = useState(generateCaptcha());
+  const [captchaInput, setCaptchaInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { setUser, setToken } = useAuthStore();
+  const { mode, toggle } = useThemeStore();
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 8,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fadeAnim, scaleAnim]);
+
+  const refreshCaptcha = () => {
+    setCaptcha(generateCaptcha());
+    setCaptchaInput('');
+  };
 
   const handleLogin = async (overrideEmail?: string, overridePassword?: string) => {
     const loginEmail = overrideEmail ?? email.trim().toLowerCase();
@@ -33,6 +75,12 @@ export function LoginScreen({ onNavigateToSignUp }: Props) {
 
     if (!loginEmail || !loginPassword) {
       setError('Please enter your email and password.');
+      return;
+    }
+
+    if (!overrideEmail && captchaInput.trim().toUpperCase() !== captcha.toUpperCase()) {
+      setError('Captcha verification failed. Please try again.');
+      refreshCaptcha();
       return;
     }
 
@@ -49,6 +97,7 @@ export function LoginScreen({ onNavigateToSignUp }: Props) {
         err?.message ??
         'Login failed. Check your credentials and try again.';
       setError(msg);
+      refreshCaptcha();
     } finally {
       setLoading(false);
     }
@@ -65,7 +114,6 @@ export function LoginScreen({ onNavigateToSignUp }: Props) {
       setToken(response.token);
       setUser(response.user);
     } catch {
-      console.log('[Demo Login] User rajesh@benefitos.dev not found, attempting auto-registration...');
       try {
         const regResponse = await authService.register({
           name: 'Rajesh Kumar',
@@ -74,6 +122,7 @@ export function LoginScreen({ onNavigateToSignUp }: Props) {
           age: '21',
           income: '180000',
           state: 'Uttar Pradesh',
+          profession: 'Student',
         });
         setToken(regResponse.token);
         setUser(regResponse.user);
@@ -100,24 +149,49 @@ export function LoginScreen({ onNavigateToSignUp }: Props) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+          {/* Theme toggle */}
+          <View style={styles.themeToggleRow}>
+            <TouchableOpacity
+              onPress={toggle}
+              style={styles.themeBtn}
+              activeOpacity={0.7}
+            >
+              {mode === 'dark' ? (
+                <Sun size={18} color={Palette.textSecondary} strokeWidth={2} />
+              ) : (
+                <Moon size={18} color={Palette.textSecondary} strokeWidth={2} />
+              )}
+              <Text style={styles.themeBtnText}>
+                {mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           {/* Logo / Brand */}
-          <View style={styles.logoArea}>
+          <Animated.View
+            style={[
+              styles.logoArea,
+              {
+                opacity: fadeAnim,
+                transform: [{ scale: scaleAnim }],
+              },
+            ]}
+          >
             <View style={styles.logoCircle}>
-              <Text style={styles.logoEmoji}>🛡️</Text>
+              <Shield size={36} color={Palette.white} strokeWidth={2.5} />
             </View>
             <Text style={styles.brandName}>BenefitOS</Text>
             <Text style={styles.tagline}>Your Government Benefits, Simplified</Text>
-          </View>
+          </Animated.View>
 
           {/* Card */}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Welcome back</Text>
             <Text style={styles.cardSubtitle}>Sign in to access your welfare dashboard</Text>
 
-            {/* Error banner */}
             {error ? (
               <View style={styles.errorBanner}>
-                <Text style={styles.errorText}>⚠️  {error}</Text>
+                <Text style={styles.errorText}>{error}</Text>
               </View>
             ) : null}
 
@@ -140,16 +214,51 @@ export function LoginScreen({ onNavigateToSignUp }: Props) {
             {/* Password */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Password</Text>
-              <TextInput
-                style={styles.input}
-                value={password}
-                onChangeText={setPassword}
-                placeholder="••••••••"
-                placeholderTextColor={Palette.textMuted}
-                secureTextEntry
-                returnKeyType="done"
-                onSubmitEditing={() => handleLogin()}
-              />
+              <View style={styles.passwordRow}>
+                <TextInput
+                  style={[styles.input, { flex: 1, paddingRight: 48 }]}
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder="Enter your password"
+                  placeholderTextColor={Palette.textMuted}
+                  secureTextEntry={!showPassword}
+                  returnKeyType="next"
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.eyeBtn}
+                  activeOpacity={0.7}
+                >
+                  {showPassword ? (
+                    <EyeOff size={20} color={Palette.textSecondary} strokeWidth={2} />
+                  ) : (
+                    <Eye size={20} color={Palette.textSecondary} strokeWidth={2} />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Captcha */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Captcha Verification</Text>
+              <View style={styles.captchaRow}>
+                <View style={styles.captchaBox}>
+                  <Text style={styles.captchaText}>{captcha}</Text>
+                  <TouchableOpacity onPress={refreshCaptcha} activeOpacity={0.7}>
+                    <RefreshCw size={16} color={Palette.textSecondary} strokeWidth={2} />
+                  </TouchableOpacity>
+                </View>
+                <TextInput
+                  style={[styles.input, { flex: 1 }]}
+                  value={captchaInput}
+                  onChangeText={setCaptchaInput}
+                  placeholder="Enter captcha"
+                  placeholderTextColor={Palette.textMuted}
+                  autoCapitalize="characters"
+                  autoCorrect={false}
+                  returnKeyType="done"
+                />
+              </View>
             </View>
 
             {/* Login button */}
@@ -162,7 +271,10 @@ export function LoginScreen({ onNavigateToSignUp }: Props) {
               {loading ? (
                 <ActivityIndicator color={Palette.white} size="small" />
               ) : (
-                <Text style={styles.loginBtnText}>Sign In</Text>
+                <View style={styles.loginBtnContent}>
+                  <CheckCircle2 size={18} color={Palette.white} strokeWidth={2.5} />
+                  <Text style={styles.loginBtnText}>Sign In</Text>
+                </View>
               )}
             </TouchableOpacity>
 
@@ -180,7 +292,7 @@ export function LoginScreen({ onNavigateToSignUp }: Props) {
               activeOpacity={0.8}
               disabled={loading}
             >
-              <Text style={styles.demoBtnText}>🚀  Continue as Rajesh Kumar</Text>
+              <Text style={styles.demoBtnText}>Continue as Rajesh Kumar</Text>
               <Text style={styles.demoBtnSub}>Demo account — instant access</Text>
             </TouchableOpacity>
 
@@ -198,9 +310,8 @@ export function LoginScreen({ onNavigateToSignUp }: Props) {
             </TouchableOpacity>
           </View>
 
-          {/* Footer note */}
           <Text style={styles.footer}>
-            Built for Hackathon 2024 · Neo4j Graph Intelligence
+            BenefitOS · Government Welfare Intelligence Platform
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -217,26 +328,41 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingBottom: 40,
-    justifyContent: 'center',
+  },
+  themeToggleRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingTop: 8,
+  },
+  themeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Palette.border,
+    backgroundColor: Palette.surface,
+  },
+  themeBtnText: {
+    color: Palette.textSecondary,
+    fontSize: 13,
+    fontWeight: '600',
   },
   logoArea: {
     alignItems: 'center',
-    paddingTop: 24,
+    paddingTop: 16,
     paddingBottom: 36,
   },
   logoCircle: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Palette.primaryA22,
-    borderWidth: 2,
-    borderColor: Palette.primaryA55,
+    backgroundColor: Palette.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
-  },
-  logoEmoji: {
-    fontSize: 36,
   },
   brandName: {
     color: Palette.textPrimary,
@@ -306,20 +432,54 @@ const styles = StyleSheet.create({
     color: Palette.textPrimary,
     fontSize: 16,
   },
+  passwordRow: {
+    position: 'relative',
+  },
+  eyeBtn: {
+    position: 'absolute',
+    right: 14,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  captchaRow: {
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'center',
+  },
+  captchaBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: Palette.background,
+    borderWidth: 1,
+    borderColor: Palette.border,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+  },
+  captchaText: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: Palette.primary,
+    letterSpacing: 4,
+    fontStyle: 'italic',
+  },
   loginBtn: {
     backgroundColor: Palette.primary,
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 8,
-    shadowColor: Palette.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 6,
   },
   loginBtnDisabled: {
     opacity: 0.6,
+  },
+  loginBtnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   loginBtnText: {
     color: Palette.white,
@@ -376,7 +536,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   footer: {
-    color: Palette.border,
+    color: Palette.textMuted,
     fontSize: 11,
     textAlign: 'center',
     lineHeight: 16,

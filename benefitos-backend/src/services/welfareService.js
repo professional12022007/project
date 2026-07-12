@@ -40,3 +40,13 @@ exports.getSimilarSchemes = async (schemeId) => {
   return { similar };
 };
 
+exports.getSchemeDetails = async (schemeId) => {
+  const result = await welfareQueries.getSchemeDetails(schemeId);
+  if (!result || result.length === 0) {
+    const err = new Error("Scheme not found");
+    err.statusCode = 404;
+    throw err;
+  }
+  return result[0];
+};
+

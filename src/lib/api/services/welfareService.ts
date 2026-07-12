@@ -15,10 +15,38 @@ export type MissedScheme = {
   name: string;
   benefitAmount: number;
   reason: string;
+  description?: string;
+  category?: string;
+  governmentLevel?: string;
+  officialUrl?: string;
+  minAge?: number;
+  maxAge?: number;
+  maxIncome?: number;
 };
 
 export type MissedBenefits = {
   missedSchemes: MissedScheme[];
+};
+
+export type SchemeDocument = {
+  id: string;
+  name: string;
+};
+
+export type SchemeDetails = {
+  id: string;
+  name: string;
+  description: string;
+  benefitAmount: number;
+  category: string;
+  governmentLevel: string;
+  officialUrl: string;
+  minAge: number;
+  maxAge: number;
+  maxIncome: number;
+  documents: SchemeDocument[];
+  stages: string[];
+  states: string[];
 };
 
 // ---------------------------------------------------------------------------
@@ -37,4 +65,10 @@ export const welfareService = {
    */
   getMissedBenefits: (citizenId: string) =>
     get<MissedBenefits>(`/api/missed-benefits/${citizenId}`),
+
+  /**
+   * Fetch detailed information for a single scheme.
+   */
+  getSchemeDetails: (schemeId: string) =>
+    get<SchemeDetails>(`/api/scheme/${schemeId}`),
 };

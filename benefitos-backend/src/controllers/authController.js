@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, age, income, state } = req.body;
+    const { name, email, password, age, income, state, profession } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ error: "Missing required fields (name, email, password)" });
@@ -38,6 +38,9 @@ exports.register = async (req, res, next) => {
     if (!state) {
       return res.status(400).json({ error: "State is required" });
     }
+    if (!profession) {
+      return res.status(400).json({ error: "Profession is required" });
+    }
     if (isNaN(Number(age))) {
       return res.status(400).json({ error: "Age must be a valid number" });
     }
@@ -57,6 +60,7 @@ exports.register = async (req, res, next) => {
       income: Number(income),
       state,
       stage,
+      profession,
     });
 
     if (!createdList || createdList.length === 0) {
@@ -79,6 +83,7 @@ exports.register = async (req, res, next) => {
         income: income ? Number(income) : null,
         state,
         stage,
+        profession,
       },
       token,
       refreshToken: "dummy-refresh-token",
@@ -129,6 +134,7 @@ exports.login = async (req, res, next) => {
         income: citizen.income,
         state: citizen.state,
         stage: citizen.stage,
+        profession: citizen.profession,
       },
       token,
       refreshToken: "dummy-refresh-token",

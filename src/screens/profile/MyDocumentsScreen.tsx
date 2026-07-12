@@ -358,7 +358,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
       if (response.status === 200) {
         setUploadProgress(100);
         Alert.alert(
-          'Verification Success 🎉',
+          'Verification Success',
           `"${selectedDoc}" has been uploaded. AI Engine has updated eligibility, welfare scores, and roadmap charts.`
         );
         // Clear local image path
@@ -423,7 +423,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
       await saveOfflineQueue(updated);
 
       Alert.alert(
-        'Queued Offline 📁',
+        'Queued Offline',
         `Internet connectivity is offline. "${docName}" has been safely saved locally and will auto-sync when online.`
       );
 
@@ -499,7 +499,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
     setRefreshing(false);
 
     if (successCount > 0) {
-      Alert.alert('Sync Complete 🎉', `Successfully uploaded ${successCount} queued documents.`);
+      Alert.alert('Sync Complete', `Successfully uploaded ${successCount} queued documents.`);
       await fetchReadiness();
     } else {
       Alert.alert('Sync Failed', 'Could not sync any queued files. Please check server status.');
@@ -627,7 +627,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
                       ]}
                     >
                       <Text style={[s.docIcon, { color: isQueued ? '#3b82f6' : '#f59e0b' }]}>
-                        {isQueued ? '⏳' : '✗'}
+                        {isQueued ? '...' : '✗'}
                       </Text>
                       <View style={{ flex: 1 }}>
                         <Text style={s.docName}>{doc}</Text>
@@ -639,7 +639,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
                   );
                 })
               ) : (
-                <Text style={s.emptyRowText}>All required documents are verified! 🎉</Text>
+                <Text style={s.emptyRowText}>All required documents are verified.</Text>
               )}
             </View>
           </>
@@ -675,7 +675,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
                       style={s.uploadOptionBtn}
                       activeOpacity={0.7}
                     >
-                      <Text style={{ fontSize: 24 }}>📸</Text>
+                      <Text style={{ fontSize: 24, fontWeight: '600', color: Palette.primary }}>Cam</Text>
                       <View style={{ flex: 1 }}>
                         <Text style={s.optionTitle}>Use Device Camera</Text>
                         <Text style={s.optionDesc}>Capture document scan via real device camera preview</Text>
@@ -687,7 +687,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
                       style={s.uploadOptionBtn}
                       activeOpacity={0.7}
                     >
-                      <Text style={{ fontSize: 24 }}>📁</Text>
+                      <Text style={{ fontSize: 24, fontWeight: '600', color: Palette.primary }}>File</Text>
                       <View style={{ flex: 1 }}>
                         <Text style={s.optionTitle}>Choose from Gallery</Text>
                         <Text style={s.optionDesc}>Select image document from local photo folders</Text>
@@ -732,7 +732,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
                       style={s.cameraSubBtn}
                     >
                       <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}>
-                        {flashMode === 'on' ? '⚡️ Flash On' : '⚡️ Flash Off'}
+                        {flashMode === 'on' ? 'Flash On' : 'Flash Off'}
                       </Text>
                     </TouchableOpacity>
 

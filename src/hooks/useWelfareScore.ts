@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { WelfareScore } from '@/lib/api/services/welfareService';
 
 // ---------------------------------------------------------------------------
-// 🔧 SWAP POINT — to use the real API, replace these two lines:
+// SWAP POINT — to use the real API, replace these two lines:
 //   import { welfareService } from '@/lib/api/services/welfareService';
 //   const fetchFn = (id: string) => welfareService.getWelfareScore(id);
 // ---------------------------------------------------------------------------

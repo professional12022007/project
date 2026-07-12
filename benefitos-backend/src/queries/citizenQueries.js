@@ -11,6 +11,7 @@ exports.findCitizenById = (citizenId) =>
       c.age as age,
       c.income as income,
       c.state as state,
+      c.profession as profession,
       COALESCE(stage.name, c.stage) as stage
     `,
     { citizenId },
@@ -115,6 +116,7 @@ exports.findCitizenByEmail = (email) =>
       c.age as age,
       c.income as income,
       c.state as state,
+      c.profession as profession,
       c.email as email,
       COALESCE(stage.name, c.stage) as stage
     `,
@@ -132,6 +134,7 @@ exports.findCitizenByIdSecure = (citizenId) =>
       c.age as age,
       c.income as income,
       c.state as state,
+      c.profession as profession,
       c.email as email,
       c.password as password,
       COALESCE(stage.name, c.stage) as stage
@@ -149,7 +152,7 @@ exports.updateCitizenPassword = (citizenId, hashedPassword) =>
     { citizenId, hashedPassword },
   );
 
-exports.createCitizenAccount = (citizenId, { name, email, password, age, income, state, stage = "Student" }) =>
+exports.createCitizenAccount = (citizenId, { name, email, password, age, income, state, stage = "Student", profession = "Other" }) =>
   runQuery(
     `
     CREATE (c:Citizen {
@@ -161,6 +164,7 @@ exports.createCitizenAccount = (citizenId, { name, email, password, age, income,
       income: $income,
       state: $state,
       stage: $stage,
+      profession: $profession,
       createdAt: datetime(),
       updatedAt: datetime()
     })
@@ -184,7 +188,8 @@ exports.createCitizenAccount = (citizenId, { name, email, password, age, income,
       age: age ? Number(age) : null,
       income: income ? Number(income) : null,
       state: state || null,
-      stage: stage || "Student"
+      stage: stage || "Student",
+      profession: profession || "Other"
     },
   );
 

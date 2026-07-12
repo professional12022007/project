@@ -108,3 +108,13 @@ exports.getPredictiveEligibility = async (req, res, next) => {
   }
 };
 
+exports.getSchemeDetails = async (req, res, next) => {
+  try {
+    const { schemeId } = req.params;
+    const result = await welfareService.getSchemeDetails(schemeId);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+

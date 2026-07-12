@@ -2,7 +2,7 @@ import type { RoadmapData } from '@/lib/api/services/roadmapService';
 import { useCallback, useEffect, useState } from 'react';
 
 // ---------------------------------------------------------------------------
-// 🔧 SWAP POINT — to use the real API, replace these two lines:
+// SWAP POINT — to use the real API, replace these two lines:
 //   import { roadmapService } from '@/lib/api/services/roadmapService';
 //   const fetchFn = (id: string) => roadmapService.getRoadmap(id);
 // ---------------------------------------------------------------------------

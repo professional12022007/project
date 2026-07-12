@@ -13,6 +13,7 @@ export type RegisterPayload = {
   age?: string;
   income?: string;
   state?: string;
+  profession?: string;
 };
 
 export type AuthResponse = {

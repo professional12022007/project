@@ -14,7 +14,6 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import Svg, { Path, Circle, Rect, Line, Polyline } from 'react-native-svg';
 import { useAuthStore } from '@/store/authStore';
 import { useDocumentReadiness } from '@/hooks/useDocumentReadiness';
-import { RefreshIcon } from '@/components/ui/Icons';
 import { useWelfareScore } from '@/hooks/useWelfareScore';
 import { useMissedBenefits } from '@/hooks/useMissedBenefits';
 import { useClaimedSchemes } from '@/hooks/useClaimedSchemes';

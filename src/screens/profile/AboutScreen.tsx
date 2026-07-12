@@ -37,7 +37,7 @@ export function AboutScreen({ onBack }: Props) {
         {/* Brand block */}
         <View style={s.brand}>
           <View style={s.logoCircle}>
-            <Text style={s.logoEmoji}>🛡️</Text>
+            <Text style={s.logoEmoji}>B</Text>
           </View>
           <Text style={s.appName}>BenefitOS</Text>
           <Text style={s.versionBadge}>Version {version}</Text>
@@ -54,10 +54,10 @@ export function AboutScreen({ onBack }: Props) {
             if they qualify.{'\n\n'}
             BenefitOS solves this with a graph intelligence engine. We map every scheme&apos;s
             eligibility criteria — income ceiling, age range, life stage, state availability
-            — as relationships in a Neo4j graph. When you log in, the graph traversal finds
+            — as relationships in a knowledge graph. When you log in, the graph traversal finds
             every scheme your profile satisfies in real time, calculates your Welfare Score,
             and generates a personalised roadmap to close the gap.{'\n\n'}
-            Built during Hackathon 2024 as a proof of concept for AI-assisted welfare navigation.
+            Built as a proof of concept for AI-assisted welfare navigation.
           </Text>
         </View>
 
@@ -65,7 +65,7 @@ export function AboutScreen({ onBack }: Props) {
         <View style={s.card}>
           <Text style={s.cardHeading}>Technology</Text>
           {[
-            ['Graph Database', 'Neo4j — citizen-scheme relationships'],
+            ['Knowledge Graph', 'Citizen-scheme eligibility relationships'],
             ['Mobile', 'React Native + Expo SDK 56'],
             ['AI Assistant', 'Sarvam AI (STT + TTS, Hindi-first)'],
             ['Backend', 'Node.js + Express'],
@@ -102,7 +102,7 @@ const s = StyleSheet.create({
     borderWidth: 2, borderColor: Palette.primaryA55,
     alignItems: 'center', justifyContent: 'center', marginBottom: 12,
   },
-  logoEmoji: { fontSize: 30 },
+  logoEmoji: { fontSize: 30, fontWeight: '800', color: Palette.primary },
   appName: {
     color: Palette.textPrimary, fontSize: 28, fontWeight: '800',
     letterSpacing: -0.5, marginBottom: 6,

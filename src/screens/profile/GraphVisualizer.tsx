@@ -67,7 +67,6 @@ export function GraphVisualizer({ onBack }: Props) {
       <SafeAreaView style={s.container}>
         <View style={s.center}>
           <ActivityIndicator color={Palette.primary} size="large" />
-          <Text style={s.loadingText}>Retrieving Neo4j auraDB active model...</Text>
         </View>
       </SafeAreaView>
     );
@@ -267,7 +266,6 @@ export function GraphVisualizer({ onBack }: Props) {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Palette.background },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
-  loadingText: { color: Palette.textSecondary, marginTop: 12, fontSize: 15 },
   header: {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16,

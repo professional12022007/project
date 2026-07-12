@@ -51,7 +51,7 @@ export function AccountSettingsScreen({ onBack }: Props) {
       });
 
       setUser(updatedUser);
-      Alert.alert('Saved Success 🎉', 'Your profile details have been updated and graph benefits re-evaluated.', [
+      Alert.alert('Saved', 'Your profile details have been updated and benefits re-evaluated.', [
         { text: 'OK', onPress: onBack }
       ]);
     } catch (err: any) {
@@ -156,9 +156,9 @@ export function AccountSettingsScreen({ onBack }: Props) {
         <View style={s.card}>
           <Text style={s.sectionLabel}>Family linkage</Text>
           <View style={s.readonlyField}>
-            <Text style={s.readonlyText}>Kumar Household 👥</Text>
+            <Text style={s.readonlyText}>Kumar Household</Text>
           </View>
-          <Text style={s.hint}>Linked in backend Neo4j welfare graph matrix.</Text>
+          <Text style={s.hint}>Linked in backend welfare graph.</Text>
         </View>
 
         {/* Email Node (Readonly) */}

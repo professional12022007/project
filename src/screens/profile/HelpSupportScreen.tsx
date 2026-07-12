@@ -8,7 +8,7 @@ import { Palette } from '@/constants/theme';
 const FAQS = [
   {
     q: 'How does BenefitOS match me to welfare schemes?',
-    a: 'We use a Neo4j graph database to map relationships between your profile (age, income, state, life stage) and every government scheme\'s eligibility criteria. When you log in, the graph traversal engine instantly finds schemes where all your attributes satisfy the scheme\'s requirements — income ceiling, age range, state availability, and life stage targeting.',
+    a: 'We use a graph intelligence engine to map relationships between your profile (age, income, state, life stage) and every government scheme\'s eligibility criteria. When you log in, the engine instantly finds schemes where all your attributes satisfy the scheme\'s requirements — income ceiling, age range, state availability, and life stage targeting.',
   },
   {
     q: 'Why is my Welfare Score below 100%?',
@@ -24,7 +24,7 @@ const FAQS = [
   },
   {
     q: 'Is my data safe? Who can see my information?',
-    a: 'Your data is stored on a Neo4j database you or your operator controls. BenefitOS does not send your data to any third-party analytics or advertising services. See Privacy & Security in this menu for the full list of what is stored.',
+    a: 'Your data is stored on a secure database that you or your operator controls. BenefitOS does not send your data to any third-party analytics or advertising services. See Privacy & Security in this menu for the full list of what is stored.',
   },
 ];
 
@@ -90,7 +90,7 @@ export function HelpSupportScreen({ onBack }: Props) {
           activeOpacity={0.75}
           onPress={() => Linking.openURL('mailto:support@benefitos.dev?subject=BenefitOS%20Support')}
         >
-          <Text style={s.contactIcon}>✉️</Text>
+          <Text style={s.contactIcon}>✉</Text>
           <View style={s.contactText}>
             <Text style={s.contactLabel}>Email Support</Text>
             <Text style={s.contactSub}>support@benefitos.dev</Text>

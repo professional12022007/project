@@ -2,7 +2,7 @@ import type { MissedBenefits } from '@/lib/api/services/welfareService';
 import { useCallback, useEffect, useState } from 'react';
 
 // ---------------------------------------------------------------------------
-// 🔧 SWAP POINT — to use the real API, replace these two lines:
+// SWAP POINT — to use the real API, replace these two lines:
 //   import { welfareService } from '@/lib/api/services/welfareService';
 //   const fetchFn = (id: string) => welfareService.getMissedBenefits(id);
 // ---------------------------------------------------------------------------
