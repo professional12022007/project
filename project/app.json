@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "BenefitOS",
+    "slug": "benefitos-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0F0F1A"
+    },
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "package": "com.benefitos.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0F0F1A",
+        "foregroundImage": "./assets/adaptive-icon.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "ios": {
+      "bundleIdentifier": "com.benefitos.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "output": "single"
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0F0F1A",
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "android": {
+            "image": "./assets/splash-icon.png",
+            "imageWidth": 76
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "reactCompiler": true
+    }
+  }
+}

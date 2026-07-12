@@ -1,0 +1,26 @@
+{
+  "name": "benefitos-backend",
+  "version": "1.0.0",
+  "description": "Graph Intelligence Engine Core for BenefitOS",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node scripts/seed.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jimp": "^1.6.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.2.0",
+    "neo4j-driver": "^5.28.1",
+    "tesseract.js": "^7.0.0"
+  }
+}

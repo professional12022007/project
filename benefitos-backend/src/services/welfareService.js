@@ -1,0 +1,42 @@
+const welfareQueries = require("../queries/welfareQueries");
+
+exports.getWelfareScore = async (citizenId) => {
+  const result = await welfareQueries.getWelfareScore(citizenId);
+
+  // If the query returns no data (e.g., citizen not found), return legacy fallback shape.
+  if (!result || result.length === 0) {
+    return { score: 100, currentBenefits: 0, potentialBenefits: 0 };
+  }
+
+  const { score, currentBenefits, potentialBenefits } = result[0];
+  return { score, currentBenefits, potentialBenefits };
+};
+exports.getClaimedSchemes = async (citizenId) => {
+  const rows = await welfareQueries.getClaimedSchemes(citizenId);
+  const claimedSchemes = rows.map(row => ({
+    id: row.id,
+    name: row.name,
+    benefitAmount: row.benefitAmount,
+    // Preserve existing relationship properties if they exist
+    ...(row.status !== undefined && { status: row.status }),
+    ...(row.dateClaimed !== undefined && { dateClaimed: row.dateClaimed }),
+  }));
+  return { claimedSchemes };
+};
+
+exports.recalculateEligibility = (citizenId) =>
+  welfareQueries.recalculateEligibility(citizenId);
+
+exports.refreshRecommendationRelationships = (citizenId) =>
+  welfareQueries.refreshRecommendationRelationships(citizenId);
+
+exports.getExplainEligibility = async (citizenId, schemeId) => {
+  const result = await welfareQueries.checkExplainableEligibility(citizenId, schemeId);
+  return result[0] || { citizenId, schemeId, ageValid: false, incomeValid: false, stateValid: false, stageValid: false };
+};
+
+exports.getSimilarSchemes = async (schemeId) => {
+  const similar = await welfareQueries.findSimilarSchemes(schemeId);
+  return { similar };
+};
+
