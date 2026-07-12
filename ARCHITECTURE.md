@@ -197,3 +197,6 @@ Neo4j AuraDB
 - Analytics
 - Monitoring
 - Crash reporting
+## Expo Version Requirements
+
+Read the exact versioned docs at https://docs.expo.dev/versions/v56.0.0/ before writing any code.
