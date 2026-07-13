@@ -7,9 +7,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 
 import { RootNavigator } from '@/navigation/RootNavigator';
-import { useThemeStore } from '@/store/themeStore';
+import { ThemeProvider, useThemeStore } from '@/store/themeStore';
 
-export default function App() {
+function AppInner() {
   const { mode, init } = useThemeStore();
 
   useEffect(() => {
@@ -25,5 +25,13 @@ export default function App() {
         </NavigationContainer>
       </SafeAreaProvider>
     </GestureHandlerRootView>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppInner />
+    </ThemeProvider>
   );
 }
