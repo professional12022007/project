@@ -8,13 +8,15 @@ import {
   ActivityIndicator, RefreshControl, Alert, BackHandler
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Palette } from '@/constants/theme';
+import { useThemedStyles, usePalette } from '@/hooks/useThemedStyles';
+import { ChevronLeft } from 'lucide-react-native';
 import { citizenService, GraphNodeData, PredictionData } from '@/lib/api/services/citizenService';
 import { useAuthStore } from '@/store/authStore';
 
 interface Props { onBack: () => void; }
 
 export function GraphVisualizer({ onBack }: Props) {
+  const palette = usePalette();
   const { user } = useAuthStore();
   const [graphData, setGraphData] = useState<GraphNodeData | null>(null);
   const [predictions, setPredictions] = useState<PredictionData[]>([]);
@@ -62,11 +64,156 @@ export function GraphVisualizer({ onBack }: Props) {
     fetchData();
   };
 
+  const s = useThemedStyles((p) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: p.background },
+    center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
+    header: {
+      flexDirection: 'row', alignItems: 'center',
+      paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16,
+      borderBottomWidth: 1, borderBottomColor: p.border,
+    },
+    backBtn: { width: 40, paddingVertical: 4 },
+    title: { flex: 1, textAlign: 'center', color: p.textPrimary, fontSize: 17, fontWeight: '700' },
+    tabs: {
+      flexDirection: 'row',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: p.border,
+    },
+    tab: {
+      flex: 1,
+      paddingVertical: 10,
+      alignItems: 'center',
+      borderRadius: 12,
+      backgroundColor: p.surface,
+      marginHorizontal: 4,
+      borderWidth: 1,
+      borderColor: p.border,
+    },
+    tabActive: {
+      backgroundColor: p.primary,
+      borderColor: p.primary,
+    },
+    tabText: { color: p.textSecondary, fontWeight: '600', fontSize: 14 },
+    tabTextActive: { color: p.white },
+    scrollBody: { padding: 20, paddingBottom: 60 },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    sectionTitle: { fontSize: 13, fontWeight: '700', textTransform: 'uppercase', color: p.textMuted, letterSpacing: 0.8, marginBottom: 12 },
+    relationshipLabel: { fontSize: 12, fontWeight: '600', color: p.primary },
+    card: {
+      backgroundColor: p.surface,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: p.border,
+      padding: 16,
+      marginBottom: 20,
+    },
+    citizenCard: {
+      borderColor: p.primary,
+      borderLeftWidth: 5,
+    },
+    citizenHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      borderBottomWidth: 1,
+      borderBottomColor: p.border,
+      paddingBottom: 10,
+      marginBottom: 10,
+    },
+    nodeTitle: { fontSize: 18, fontWeight: '700', color: p.textPrimary },
+    nodeId: { fontSize: 12, color: p.textMuted },
+    properties: { gap: 6 },
+    propertyText: { fontSize: 14, color: p.textSecondary },
+    linkItem: {
+      marginBottom: 20,
+    },
+    edgeLine: {
+      alignItems: 'center',
+      marginVertical: 4,
+    },
+    edgeLabel: { fontSize: 11, fontWeight: '700', color: p.primary, backgroundColor: p.background, paddingHorizontal: 10 },
+    nodeCard: {
+      borderLeftWidth: 4,
+    },
+    nodeBadge: {
+      alignSelf: 'flex-start',
+      fontSize: 10,
+      fontWeight: '700',
+      color: p.white,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: 8,
+      marginBottom: 8,
+      textTransform: 'uppercase',
+    },
+    nodeName: { fontSize: 16, fontWeight: '700', color: p.textPrimary },
+    nodeMeta: { fontSize: 12, color: p.textMuted, marginTop: 4 },
+    childNodeRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: p.border,
+    },
+    childNodeName: { fontSize: 14, color: p.textPrimary, fontWeight: '600' },
+    statusBadge: {
+      fontSize: 12,
+      fontWeight: '600',
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: 8,
+    },
+    badgeSuccess: { backgroundColor: '#d1fae5', color: '#065f46' },
+    badgeWarning: { backgroundColor: '#fee2e2', color: '#991b1b' },
+    badgeInfo: { backgroundColor: '#e0f2fe', color: '#075985' },
+    pathwayCard: {
+      backgroundColor: p.surface,
+      borderWidth: 1,
+      borderColor: p.border,
+      borderRadius: 20,
+      padding: 16,
+      marginBottom: 16,
+    },
+    pathwayHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      borderBottomWidth: 1,
+      borderBottomColor: p.border,
+      paddingBottom: 10,
+      marginBottom: 12,
+    },
+    pathwayTitle: { fontSize: 16, fontWeight: '700', color: p.textPrimary, flex: 1, marginRight: 12 },
+    pathwayBenefit: { fontSize: 16, fontWeight: '700', color: '#059669' },
+    pathwaySteps: { gap: 8 },
+    stepHeader: { fontSize: 12, fontWeight: '600', color: p.textMuted },
+    stepRow: { flexDirection: 'row', alignItems: 'flex-start', paddingLeft: 6 },
+    stepBullet: { color: p.primary, marginRight: 8, fontSize: 14 },
+    stepText: { fontSize: 14, color: p.textSecondary, flex: 1, lineHeight: 18 },
+    centerCard: {
+      backgroundColor: p.surface,
+      borderWidth: 1,
+      borderColor: p.border,
+      borderRadius: 20,
+      padding: 24,
+      alignItems: 'center',
+    },
+    emptyText: { color: p.textSecondary, textAlign: 'center', fontSize: 14, lineHeight: 20 },
+  }));
+
   if (loading) {
     return (
       <SafeAreaView style={s.container}>
         <View style={s.center}>
-          <ActivityIndicator color={Palette.primary} size="large" />
+          <ActivityIndicator color={palette.primary} size="large" />
         </View>
       </SafeAreaView>
     );
@@ -77,7 +224,7 @@ export function GraphVisualizer({ onBack }: Props) {
       {/* Header */}
       <View style={s.header}>
         <TouchableOpacity onPress={onBack} activeOpacity={0.7} style={s.backBtn}>
-          <Text style={s.backIcon}>←</Text>
+          <ChevronLeft size={22} color={palette.textSecondary} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={s.title}>My Welfare Network</Text>
         <View style={{ width: 40 }} />
@@ -101,7 +248,7 @@ export function GraphVisualizer({ onBack }: Props) {
 
       <ScrollView
         contentContainerStyle={s.scrollBody}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Palette.primary} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={palette.primary} />}
       >
         {viewMode === 'graph' ? (
           <>
@@ -262,149 +409,3 @@ export function GraphVisualizer({ onBack }: Props) {
     </SafeAreaView>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Palette.background },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
-  header: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16,
-    borderBottomWidth: 1, borderBottomColor: Palette.border,
-  },
-  backBtn: { width: 40, paddingVertical: 4 },
-  backIcon: { color: Palette.textSecondary, fontSize: 22 },
-  title: { flex: 1, textAlign: 'center', color: Palette.textPrimary, fontSize: 17, fontWeight: '700' },
-  tabs: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Palette.border,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: 'center',
-    borderRadius: 12,
-    backgroundColor: Palette.surface,
-    marginHorizontal: 4,
-    borderWidth: 1,
-    borderColor: Palette.border,
-  },
-  tabActive: {
-    backgroundColor: Palette.primary,
-    borderColor: Palette.primary,
-  },
-  tabText: { color: Palette.textSecondary, fontWeight: '600', fontSize: 14 },
-  tabTextActive: { color: Palette.white },
-  scrollBody: { padding: 20, paddingBottom: 60 },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  sectionTitle: { fontSize: 13, fontWeight: '700', textTransform: 'uppercase', color: Palette.textMuted, letterSpacing: 0.8, marginBottom: 12 },
-  relationshipLabel: { fontSize: 12, fontWeight: '600', color: Palette.primary },
-  card: {
-    backgroundColor: Palette.surface,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    padding: 16,
-    marginBottom: 20,
-  },
-  citizenCard: {
-    borderColor: Palette.primary,
-    borderLeftWidth: 5,
-  },
-  citizenHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: Palette.border,
-    paddingBottom: 10,
-    marginBottom: 10,
-  },
-  nodeTitle: { fontSize: 18, fontWeight: '700', color: Palette.textPrimary },
-  nodeId: { fontSize: 12, color: Palette.textMuted },
-  properties: { gap: 6 },
-  propertyText: { fontSize: 14, color: Palette.textSecondary },
-  linkItem: {
-    marginBottom: 20,
-  },
-  edgeLine: {
-    alignItems: 'center',
-    marginVertical: 4,
-  },
-  edgeLabel: { fontSize: 11, fontWeight: '700', color: Palette.primary, backgroundColor: Palette.background, paddingHorizontal: 10 },
-  nodeCard: {
-    borderLeftWidth: 4,
-  },
-  nodeBadge: {
-    alignSelf: 'flex-start',
-    fontSize: 10,
-    fontWeight: '700',
-    color: Palette.white,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    marginBottom: 8,
-    textTransform: 'uppercase',
-  },
-  nodeName: { fontSize: 16, fontWeight: '700', color: Palette.textPrimary },
-  nodeMeta: { fontSize: 12, color: Palette.textMuted, marginTop: 4 },
-  childNodeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Palette.border,
-  },
-  childNodeName: { fontSize: 14, color: Palette.textPrimary, fontWeight: '600' },
-  statusBadge: {
-    fontSize: 12,
-    fontWeight: '600',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  badgeSuccess: { backgroundColor: '#d1fae5', color: '#065f46' },
-  badgeWarning: { backgroundColor: '#fee2e2', color: '#991b1b' },
-  badgeInfo: { backgroundColor: '#e0f2fe', color: '#075985' },
-  pathwayCard: {
-    backgroundColor: Palette.surface,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 16,
-  },
-  pathwayHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: Palette.border,
-    paddingBottom: 10,
-    marginBottom: 12,
-  },
-  pathwayTitle: { fontSize: 16, fontWeight: '700', color: Palette.textPrimary, flex: 1, marginRight: 12 },
-  pathwayBenefit: { fontSize: 16, fontWeight: '700', color: '#059669' },
-  pathwaySteps: { gap: 8 },
-  stepHeader: { fontSize: 12, fontWeight: '600', color: Palette.textMuted },
-  stepRow: { flexDirection: 'row', alignItems: 'flex-start', paddingLeft: 6 },
-  stepBullet: { color: Palette.primary, marginRight: 8, fontSize: 14 },
-  stepText: { fontSize: 14, color: Palette.textSecondary, flex: 1, lineHeight: 18 },
-  centerCard: {
-    backgroundColor: Palette.surface,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    borderRadius: 20,
-    padding: 24,
-    alignItems: 'center',
-  },
-  emptyText: { color: Palette.textSecondary, textAlign: 'center', fontSize: 14, lineHeight: 20 },
-});

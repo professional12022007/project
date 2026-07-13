@@ -43,7 +43,9 @@ RETURN
 
     potentialMax as potentialBenefits,
 
-    size(eligibleSchemes) AS eligibilityCount
+    size(eligibleSchemes) AS eligibilityCount,
+
+    size([x IN eligibleSchemes WHERE (c)-[:BENEFITTING_FROM]->(x)]) AS claimedSchemes
     `,
     { citizenId },
   );

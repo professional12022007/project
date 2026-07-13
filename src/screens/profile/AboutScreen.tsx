@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, BackHandler } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Palette } from '@/constants/theme';
+import { useThemedStyles, usePalette } from '@/hooks/useThemedStyles';
+import { ChevronLeft } from 'lucide-react-native';
 
 // Pull version from Expo Constants — the app.json version field
 import Constants from 'expo-constants';
@@ -9,8 +10,58 @@ import Constants from 'expo-constants';
 interface Props { onBack: () => void; }
 
 export function AboutScreen({ onBack }: Props) {
+  const palette = usePalette();
   const version = Constants.expoConfig?.version ?? '1.0.0';
   const buildYear = new Date().getFullYear();
+
+  const s = useThemedStyles((p) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: p.background },
+    header: {
+      flexDirection: 'row', alignItems: 'center',
+      paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16,
+      borderBottomWidth: 1, borderBottomColor: p.border,
+    },
+    backBtn: { width: 40, paddingVertical: 4 },
+    title: { flex: 1, textAlign: 'center', color: p.textPrimary, fontSize: 17, fontWeight: '700' },
+    body: { padding: 24, paddingBottom: 56, alignItems: 'stretch' },
+    brand: { alignItems: 'center', marginBottom: 28 },
+    logoCircle: {
+      width: 72, height: 72, borderRadius: 36,
+      backgroundColor: p.primaryA22,
+      borderWidth: 2, borderColor: p.primaryA55,
+      alignItems: 'center', justifyContent: 'center', marginBottom: 12,
+    },
+    logoEmoji: { fontSize: 30, fontWeight: '800', color: p.primary },
+    appName: {
+      color: p.textPrimary, fontSize: 28, fontWeight: '800',
+      letterSpacing: -0.5, marginBottom: 6,
+    },
+    versionBadge: {
+      color: p.textMuted, fontSize: 12, fontWeight: '600',
+      backgroundColor: p.surface, paddingHorizontal: 12, paddingVertical: 4,
+      borderRadius: 10, borderWidth: 1, borderColor: p.border,
+      overflow: 'hidden',
+    },
+    card: {
+      backgroundColor: p.surface, borderRadius: 20,
+      borderWidth: 1, borderColor: p.border,
+      padding: 20, marginBottom: 16,
+    },
+    cardHeading: {
+      color: p.textPrimary, fontSize: 16, fontWeight: '700', marginBottom: 12,
+    },
+    cardText: { color: p.textSecondary, fontSize: 13, lineHeight: 21 },
+    techRow: {
+      flexDirection: 'row', alignItems: 'flex-start',
+      paddingVertical: 8,
+      borderBottomWidth: 1, borderBottomColor: p.border,
+    },
+    techName: { color: p.textPrimary, fontSize: 13, fontWeight: '600', width: 120 },
+    techDesc: { color: p.textSecondary, fontSize: 13, flex: 1, lineHeight: 18 },
+    footer: {
+      color: p.textMuted, fontSize: 11, textAlign: 'center', marginTop: 8,
+    },
+  }));
 
   useEffect(() => {
     const onBackPress = () => {
@@ -27,7 +78,7 @@ export function AboutScreen({ onBack }: Props) {
     <SafeAreaView style={s.container} edges={['top']}>
       <View style={s.header}>
         <TouchableOpacity onPress={onBack} activeOpacity={0.7} style={s.backBtn}>
-          <Text style={s.backIcon}>←</Text>
+          <ChevronLeft size={22} color={palette.textSecondary} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={s.title}>About</Text>
         <View style={{ width: 40 }} />
@@ -83,53 +134,3 @@ export function AboutScreen({ onBack }: Props) {
     </SafeAreaView>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Palette.background },
-  header: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16,
-    borderBottomWidth: 1, borderBottomColor: Palette.border,
-  },
-  backBtn: { width: 40, paddingVertical: 4 },
-  backIcon: { color: Palette.textSecondary, fontSize: 22 },
-  title: { flex: 1, textAlign: 'center', color: Palette.textPrimary, fontSize: 17, fontWeight: '700' },
-  body: { padding: 24, paddingBottom: 56, alignItems: 'stretch' },
-  brand: { alignItems: 'center', marginBottom: 28 },
-  logoCircle: {
-    width: 72, height: 72, borderRadius: 36,
-    backgroundColor: Palette.primaryA22,
-    borderWidth: 2, borderColor: Palette.primaryA55,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 12,
-  },
-  logoEmoji: { fontSize: 30, fontWeight: '800', color: Palette.primary },
-  appName: {
-    color: Palette.textPrimary, fontSize: 28, fontWeight: '800',
-    letterSpacing: -0.5, marginBottom: 6,
-  },
-  versionBadge: {
-    color: Palette.textMuted, fontSize: 12, fontWeight: '600',
-    backgroundColor: Palette.surface, paddingHorizontal: 12, paddingVertical: 4,
-    borderRadius: 10, borderWidth: 1, borderColor: Palette.border,
-    overflow: 'hidden',
-  },
-  card: {
-    backgroundColor: Palette.surface, borderRadius: 20,
-    borderWidth: 1, borderColor: Palette.border,
-    padding: 20, marginBottom: 16,
-  },
-  cardHeading: {
-    color: Palette.textPrimary, fontSize: 16, fontWeight: '700', marginBottom: 12,
-  },
-  cardText: { color: Palette.textSecondary, fontSize: 13, lineHeight: 21 },
-  techRow: {
-    flexDirection: 'row', alignItems: 'flex-start',
-    paddingVertical: 8,
-    borderBottomWidth: 1, borderBottomColor: Palette.border,
-  },
-  techName: { color: Palette.textPrimary, fontSize: 13, fontWeight: '600', width: 120 },
-  techDesc: { color: Palette.textSecondary, fontSize: 13, flex: 1, lineHeight: 18 },
-  footer: {
-    color: Palette.textMuted, fontSize: 11, textAlign: 'center', marginTop: 8,
-  },
-});

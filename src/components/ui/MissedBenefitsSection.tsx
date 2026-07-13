@@ -1,21 +1,21 @@
 import React from 'react';
 import { View, Text, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import type { MissedScheme } from '@/lib/api/services/welfareService';
-import { Palette } from '@/constants/theme';
+import { usePalette } from '@/hooks/useThemedStyles';
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function formatINR(amount: number): string {
-  return `₹${amount.toLocaleString('en-IN')}`;
+  return `\u20B9${amount.toLocaleString('en-IN')}`;
 }
 
 // ---------------------------------------------------------------------------
 // Single scheme card
 // ---------------------------------------------------------------------------
 
-function SchemeCard({ scheme }: { scheme: MissedScheme }) {
+function SchemeCard({ scheme, palette }: { scheme: MissedScheme; palette: any }) {
   return (
     <TouchableOpacity
       activeOpacity={0.78}
@@ -27,10 +27,10 @@ function SchemeCard({ scheme }: { scheme: MissedScheme }) {
         )
       }
       style={{
-        backgroundColor: Palette.surface,
+        backgroundColor: palette.surface,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: Palette.border,
+        borderColor: palette.border,
         padding: 16,
         marginBottom: 20,
       }}
@@ -43,7 +43,7 @@ function SchemeCard({ scheme }: { scheme: MissedScheme }) {
             width: 8,
             height: 8,
             borderRadius: 4,
-            backgroundColor: Palette.error,
+            backgroundColor: palette.error,
             marginTop: 5,
             marginRight: 10,
             flexShrink: 0,
@@ -51,7 +51,7 @@ function SchemeCard({ scheme }: { scheme: MissedScheme }) {
         />
         <Text
           style={{
-            color: Palette.textPrimary,
+            color: palette.textPrimary,
             fontSize: 14,
             fontWeight: '600',
             flex: 1,
@@ -64,16 +64,16 @@ function SchemeCard({ scheme }: { scheme: MissedScheme }) {
         {/* Amount badge */}
         <View
           style={{
-            backgroundColor: Palette.successA18,
+            backgroundColor: palette.successA18,
             borderRadius: 10,
             borderWidth: 1,
-            borderColor: Palette.successA33,
+            borderColor: palette.successA33,
             paddingHorizontal: 10,
             paddingVertical: 4,
             flexShrink: 0,
           }}
         >
-          <Text style={{ color: Palette.success, fontSize: 15, fontWeight: '800' }}>
+          <Text style={{ color: palette.success, fontSize: 15, fontWeight: '800' }}>
             {formatINR(scheme.benefitAmount)}
           </Text>
         </View>
@@ -82,7 +82,7 @@ function SchemeCard({ scheme }: { scheme: MissedScheme }) {
       {/* Reason */}
       <Text
         style={{
-          color: Palette.textSecondary,
+          color: palette.textSecondary,
           fontSize: 12,
           lineHeight: 18,
           marginLeft: 18, // aligns under the scheme name, past the dot
@@ -109,13 +109,15 @@ export function MissedBenefitsSection({
   isLoading,
   error,
 }: MissedBenefitsSectionProps) {
+  const palette = usePalette();
+
   // Don't render the section at all while the welfare card is also loading
   if (isLoading) {
     return (
       <View style={{ paddingHorizontal: 24, marginBottom: 24 }}>
         <Text
           style={{
-            color: Palette.textPrimary,
+            color: palette.textPrimary,
             fontSize: 17,
             fontWeight: '700',
             marginBottom: 16,
@@ -123,7 +125,7 @@ export function MissedBenefitsSection({
         >
           Schemes you&apos;re missing
         </Text>
-        <ActivityIndicator color={Palette.primary} />
+        <ActivityIndicator color={palette.primary} />
       </View>
     );
   }
@@ -131,7 +133,7 @@ export function MissedBenefitsSection({
   if (error) {
     return (
       <View style={{ paddingHorizontal: 24, marginBottom: 24 }}>
-        <Text style={{ color: Palette.textSecondary, fontSize: 13 }}>{error}</Text>
+        <Text style={{ color: palette.textSecondary, fontSize: 13 }}>{error}</Text>
       </View>
     );
   }
@@ -144,7 +146,7 @@ export function MissedBenefitsSection({
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
         <Text
           style={{
-            color: Palette.textPrimary,
+            color: palette.textPrimary,
             fontSize: 17,
             fontWeight: '700',
             flex: 1,
@@ -155,22 +157,22 @@ export function MissedBenefitsSection({
         {/* Count badge */}
         <View
           style={{
-            backgroundColor: Palette.errorA20,
+            backgroundColor: palette.errorA20,
             borderRadius: 10,
             borderWidth: 1,
-            borderColor: Palette.errorA40,
+            borderColor: palette.errorA40,
             paddingHorizontal: 10,
             paddingVertical: 3,
           }}
         >
-          <Text style={{ color: Palette.error, fontSize: 12, fontWeight: '700' }}>
+          <Text style={{ color: palette.error, fontSize: 12, fontWeight: '700' }}>
             {schemes.length}
           </Text>
         </View>
       </View>
 
       {schemes.map((scheme) => (
-        <SchemeCard key={scheme.id} scheme={scheme} />
+        <SchemeCard key={scheme.id} scheme={scheme} palette={palette} />
       ))}
     </View>
   );

@@ -72,6 +72,12 @@ exports.register = async (req, res, next) => {
     await roadmapService.refreshRoadmapRelationships(citizenId);
     await welfareService.refreshRecommendationRelationships(citizenId);
 
+    // Generate initial notifications
+    const workflowService = require("../services/workflowService");
+    await workflowService.runRecalculationWorkflowForCitizen(citizenId).catch(err => {
+      console.error("[Register] Notification generation failed:", err.message);
+    });
+
     const token = jwt.sign({ id: citizenId, email }, JWT_SECRET, { expiresIn: "24h" });
 
     res.status(201).json({
@@ -151,6 +157,12 @@ exports.getMe = async (req, res, next) => {
     // Refresh database relationships for session restore
     await welfareService.recalculateEligibility(citizenId).catch(err => {
       console.error("[getMe Recalculation] Failed to calculate eligibility:", err.message);
+    });
+
+    // Generate notifications if none exist yet
+    const workflowService = require("../services/workflowService");
+    await workflowService.runRecalculationWorkflowForCitizen(citizenId).catch(err => {
+      console.error("[getMe Notifications] Failed to generate notifications:", err.message);
     });
 
     const profiles = await citizenQueries.findCitizenById(citizenId);

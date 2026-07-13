@@ -1,5 +1,5 @@
 import { synthesizeSpeech, transcribeAudio } from '@/lib/api/services/sarvamService';
-import { Palette } from '@/constants/theme';
+import { usePalette } from '@/hooks/useThemedStyles';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -58,7 +58,7 @@ const RECORDING_OPTIONS = {
 // ---------------------------------------------------------------------------
 // Animated typing dots
 // ---------------------------------------------------------------------------
-function TypingDots() {
+function TypingDots({ palette }: { palette: ReturnType<typeof usePalette> }) {
   const [dots] = useState(() => [new Animated.Value(0), new Animated.Value(0), new Animated.Value(0)]);
 
   useEffect(() => {
@@ -85,7 +85,7 @@ function TypingDots() {
             width: 7,
             height: 7,
             borderRadius: 3.5,
-            backgroundColor: Palette.textSecondary,
+            backgroundColor: palette.textSecondary,
             transform: [{ translateY: dot }],
           }}
         />
@@ -134,6 +134,7 @@ const LANGUAGES = [
 export function AssistantScreen() {
   const { user } = useAuthStore();
   const { mode, toggle } = useThemeStore();
+  const palette = usePalette();
   const tabBarHeight = useBottomTabBarHeight();
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [inputText, setInputText] = useState('');
@@ -320,7 +321,7 @@ export function AssistantScreen() {
         {/* Header */}
         <View className="px-6 pt-6 pb-4 flex-row items-center">
           <View className="w-10 h-10 rounded-full bg-accent/20 border border-accent/30 items-center justify-center mr-3">
-            <Bot size={20} color={Palette.accent} strokeWidth={2} />
+            <Bot size={20} color={palette.accent} strokeWidth={2} />
           </View>
           <View className="flex-1">
             <Text className="text-text-primary text-lg font-bold">AI Assistant</Text>
@@ -334,8 +335,8 @@ export function AssistantScreen() {
               </Text>
             </View>
           </View>
-          <TouchableOpacity onPress={toggle} className="p-2.5 rounded-full border" style={{ borderColor: Palette.border, backgroundColor: Palette.surface }} activeOpacity={0.7}>
-            {mode === 'dark' ? <Sun size={18} color={Palette.textSecondary} strokeWidth={2} /> : <Moon size={18} color={Palette.textSecondary} strokeWidth={2} />}
+          <TouchableOpacity onPress={toggle} className="p-2.5 rounded-full border" style={{ borderColor: palette.border, backgroundColor: palette.surface }} activeOpacity={0.7}>
+            {mode === 'dark' ? <Sun size={18} color={palette.textSecondary} strokeWidth={2} /> : <Moon size={18} color={palette.textSecondary} strokeWidth={2} />}
           </TouchableOpacity>
         </View>
 
@@ -387,17 +388,17 @@ export function AssistantScreen() {
                   borderBottomRightRadius: msg.role === 'user' ? 4 : 20,
                   borderBottomLeftRadius: msg.role === 'assistant' ? 4 : 20,
                   backgroundColor: msg.isError
-                    ? Palette.errorA18
+                    ? palette.errorA18
                     : msg.role === 'user'
-                      ? Palette.primary
-                      : Palette.surface,
+                      ? palette.primary
+                      : palette.surface,
                   borderWidth: msg.role === 'assistant' ? 1 : 0,
-                  borderColor: msg.isError ? Palette.errorA44 : Palette.border,
+                  borderColor: msg.isError ? palette.errorA44 : palette.border,
                 }}
               >
                 <Text
                   style={{
-                    color: msg.isError ? Palette.error : msg.role === 'user' ? Palette.white : Palette.textPrimary,
+                    color: msg.isError ? palette.error : msg.role === 'user' ? palette.white : palette.textPrimary,
                     fontSize: 14,
                     lineHeight: 20,
                   }}
@@ -419,12 +420,12 @@ export function AssistantScreen() {
                   paddingVertical: 10,
                   borderRadius: 20,
                   borderBottomLeftRadius: 4,
-                  backgroundColor: Palette.surface,
+                  backgroundColor: palette.surface,
                   borderWidth: 1,
-                  borderColor: Palette.border,
+                  borderColor: palette.border,
                 }}
               >
-                <TypingDots />
+                <TypingDots palette={palette} />
               </View>
             </View>
           )}
@@ -443,7 +444,7 @@ export function AssistantScreen() {
                 key={chip}
                 onPress={() => sendMessage(chip)}
                 className="rounded-full px-4 py-2 bg-background-card"
-                style={{ borderWidth: 1, borderColor: Palette.primaryA44 }}
+                style={{ borderWidth: 1, borderColor: palette.primaryA44 }}
                 activeOpacity={0.8}
               >
                 <Text className="text-primary text-sm font-medium">{chip}</Text>
@@ -457,7 +458,7 @@ export function AssistantScreen() {
           className="mx-4 mb-3 flex-row items-end rounded-2xl bg-background-card"
           style={{
             borderWidth: 1,
-            borderColor: Palette.border,
+            borderColor: palette.border,
             paddingHorizontal: 12,
             paddingVertical: 8,
           }}
@@ -481,10 +482,10 @@ export function AssistantScreen() {
             className="ml-2 w-9 h-9 rounded-xl items-center justify-center"
             style={{
               backgroundColor: isRecording
-                ? Palette.recordingRed
+                ? palette.recordingRed
                 : isTranscribing
-                  ? Palette.amber
-                  : Palette.border,
+                  ? palette.amber
+                  : palette.border,
             }}
             activeOpacity={0.8}
           >
@@ -514,11 +515,11 @@ export function AssistantScreen() {
             disabled={!inputText.trim() || isTyping || isRecording}
             className="ml-2 w-9 h-9 rounded-xl items-center justify-center"
             style={{
-              backgroundColor: inputText.trim() && !isTyping && !isRecording ? Palette.primary : Palette.border,
+              backgroundColor: inputText.trim() && !isTyping && !isRecording ? palette.primary : palette.border,
             }}
             activeOpacity={0.8}
           >
-            <Send size={18} color={Palette.white} strokeWidth={2.5} />
+            <Send size={18} color={palette.white} strokeWidth={2.5} />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

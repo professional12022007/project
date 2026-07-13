@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Animated, ViewStyle } from 'react-native';
-import { Palette } from '@/constants/theme';
+import { usePalette } from '@/hooks/useThemedStyles';
 
 interface SkeletonProps {
   width?: number | string;
@@ -10,6 +10,7 @@ interface SkeletonProps {
 }
 
 export function SkeletonLoader({ width = '100%', height = 20, borderRadius = 8, style }: SkeletonProps) {
+  const palette = usePalette();
   const [shimmer] = useState(() => new Animated.Value(0.3));
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export function SkeletonLoader({ width = '100%', height = 20, borderRadius = 8, 
           width: width as any,
           height,
           borderRadius,
-          backgroundColor: Palette.border,
+          backgroundColor: palette.border,
           opacity: shimmer,
         },
         style,

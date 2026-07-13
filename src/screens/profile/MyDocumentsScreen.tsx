@@ -10,7 +10,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { Paths, File, UploadType, EncodingType } from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Palette } from '@/constants/theme';
+import { useThemedStyles, usePalette } from '@/hooks/useThemedStyles';
+import { ChevronLeft } from 'lucide-react-native';
 import { useAuthStore } from '@/store/authStore';
 import { useNetworkStore } from '@/store/networkStore';
 import { get } from '@/lib/api/client';
@@ -43,6 +44,7 @@ const DOCUMENT_DESCS: Record<string, string> = {
 const QUEUE_STORAGE_KEY = '@benefitos_offline_uploads_queue';
 
 export function MyDocumentsScreen({ onBack }: Props) {
+  const palette = usePalette();
   const { user, token } = useAuthStore();
   const { isOffline } = useNetworkStore();
 
@@ -127,6 +129,220 @@ export function MyDocumentsScreen({ onBack }: Props) {
     fetchReadiness();
     loadOfflineQueue();
   };
+
+  const s = useThemedStyles((p) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: p.background },
+    header: {
+      flexDirection: 'row', alignItems: 'center',
+      paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16,
+      borderBottomWidth: 1, borderBottomColor: p.border,
+    },
+    backBtn: { width: 40, paddingVertical: 4 },
+    title: { flex: 1, textAlign: 'center', color: p.textPrimary, fontSize: 17, fontWeight: '700' },
+    body: { padding: 20, paddingBottom: 60 },
+
+    // Queue panel styles
+    queuePanel: {
+      backgroundColor: '#eff6ff',
+      borderWidth: 1,
+      borderColor: '#bfdbfe',
+      borderRadius: 16,
+      padding: 14,
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 20,
+      gap: 12
+    },
+    queueTitle: { fontSize: 14, fontWeight: '700', color: '#1e40af', marginBottom: 2 },
+    queueDesc: { fontSize: 12, color: '#3b82f6' },
+    syncBtn: {
+      backgroundColor: '#2563eb',
+      borderRadius: 10,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+    },
+    syncBtnText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+
+    progressCard: {
+      flexDirection: 'row',
+      backgroundColor: p.surface,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: p.border,
+      padding: 18,
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    progressTextCol: { flex: 1, marginRight: 16 },
+    progressTitle: { fontSize: 16, fontWeight: '700', color: p.textPrimary, marginBottom: 6 },
+    progressDesc: { fontSize: 13, color: p.textSecondary, lineHeight: 18 },
+    progressCircle: {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      borderWidth: 4,
+      borderColor: p.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: p.border,
+    },
+    progressPercent: { fontSize: 15, fontWeight: 'bold', color: p.textPrimary },
+    sectionTitle: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', color: p.textMuted, letterSpacing: 0.8, marginBottom: 12 },
+    listCard: {
+      backgroundColor: p.surface,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: p.border,
+      overflow: 'hidden',
+      marginBottom: 20,
+    },
+    docRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+    },
+    docIcon: { fontSize: 20, fontWeight: 'bold', color: '#22c55e', marginRight: 16 },
+    docName: { fontSize: 15, fontWeight: '600', color: p.textPrimary, marginBottom: 4 },
+    docStatusText: { fontSize: 12, color: p.textMuted },
+    emptyRowText: { padding: 20, color: p.textMuted, fontSize: 13, textAlign: 'center' },
+
+    // Modal styles
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.6)',
+      justifyContent: 'flex-end',
+    },
+    modalContent: {
+      backgroundColor: p.background,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      paddingBottom: 40,
+      borderWidth: 1,
+      borderColor: p.border,
+    },
+    modalTitle: { fontSize: 20, fontWeight: '800', color: p.textPrimary, marginBottom: 8 },
+    modalDesc: { fontSize: 14, color: p.textSecondary, lineHeight: 20 },
+    uploadOptionBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 18,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: p.border,
+      backgroundColor: p.surface,
+      gap: 16,
+    },
+    optionTitle: { fontSize: 15, fontWeight: '700', color: p.textPrimary, marginBottom: 4 },
+    optionDesc: { fontSize: 12, color: p.textMuted },
+    modalCancelBtn: {
+      paddingVertical: 14,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: p.border,
+      alignItems: 'center',
+      backgroundColor: p.surface,
+      justifyContent: 'center'
+    },
+    cancelText: { color: p.textSecondary, fontWeight: '700', fontSize: 14 },
+
+    uploadActionBtnSubmit: {
+      paddingVertical: 14,
+      borderRadius: 14,
+      backgroundColor: p.primary,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    uploadSubmitText: { color: p.white, fontWeight: '700', fontSize: 14 },
+
+    // Camera guides
+    viewfinder: {
+      width: Dimensions.get('window').width * 0.85,
+      height: Dimensions.get('window').width * 0.55,
+      borderWidth: 1.5,
+      borderColor: 'rgba(255,255,255,0.4)',
+      borderRadius: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    viewfinderCorner: {
+      position: 'absolute',
+      width: 24,
+      height: 24,
+      borderColor: '#fff',
+    },
+    viewfinderText: { color: '#fff', fontSize: 12, fontWeight: 'bold', letterSpacing: 1.5, opacity: 0.85 },
+    cameraControls: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: 120,
+      backgroundColor: 'rgba(0,0,0,0.8)',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      paddingHorizontal: 20,
+    },
+    cameraSubBtn: { width: 80, alignItems: 'center' },
+    shutterBtn: {
+      width: 76,
+      height: 76,
+      borderRadius: 38,
+      backgroundColor: '#fff',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    shutterInner: {
+      width: 62,
+      height: 62,
+      borderRadius: 31,
+      borderWidth: 2.5,
+      borderColor: '#000',
+      backgroundColor: '#fff',
+    },
+
+    // Preview styling
+    previewFrameContainer: {
+      width: '100%',
+      height: 220,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: p.border,
+      backgroundColor: '#000',
+      overflow: 'hidden',
+      marginVertical: 20,
+      justifyContent: 'center'
+    },
+    previewImage: {
+      width: '100%',
+      height: '100%'
+    },
+    sizeBadge: {
+      position: 'absolute',
+      bottom: 8,
+      right: 8,
+      backgroundColor: 'rgba(0,0,0,0.7)',
+      borderRadius: 6,
+      paddingHorizontal: 6,
+      paddingVertical: 3
+    },
+    sizeBadgeText: { color: '#fff', fontSize: 9, fontWeight: '700' },
+
+    // Progress Bar
+    progressWrapper: {
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: p.border,
+      width: '100%',
+      overflow: 'hidden',
+      marginBottom: 6,
+    },
+    progressWrapperFill: {
+      height: '100%',
+      backgroundColor: p.primary,
+    },
+    progressLabel: { fontSize: 11, color: p.textSecondary, fontWeight: 'bold', textAlign: 'right' }
+  }));
 
   // Helper properties to parse available & missing items safely
   const getAvailableList = (): string[] => {
@@ -525,7 +741,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
       {/* Header */}
       <View style={s.header}>
         <TouchableOpacity onPress={onBack} activeOpacity={0.7} style={s.backBtn}>
-          <Text style={s.backIcon}>←</Text>
+          <ChevronLeft size={22} color={palette.textSecondary} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={s.title}>My Documents</Text>
         <View style={{ width: 40 }} />
@@ -534,7 +750,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
       <ScrollView
         contentContainerStyle={s.body}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Palette.primary} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={palette.primary} />}
       >
         {/* Connection & Offline Queue Sync Panel */}
         {offlineQueue.length > 0 && (
@@ -554,7 +770,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
         )}
 
         {loading ? (
-          <ActivityIndicator color={Palette.primary} size="large" style={{ marginTop: 40 }} />
+          <ActivityIndicator color={palette.primary} size="large" style={{ marginTop: 40 }} />
         ) : (
           <>
             {/* Readiness progress card */}
@@ -567,7 +783,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
               </View>
               <View style={s.progressCircle}>
                 <Text style={s.progressPercent}>{getPercent()}%</Text>
-                <Text style={{ fontSize: 9, color: Palette.textMuted, fontWeight: 'bold' }}>READY</Text>
+                <Text style={{ fontSize: 9, color: palette.textMuted, fontWeight: 'bold' }}>READY</Text>
               </View>
             </View>
 
@@ -580,7 +796,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
                     key={idx}
                     style={[
                       s.docRow,
-                      idx < getAvailableList().length - 1 && { borderBottomWidth: 1, borderBottomColor: Palette.border }
+                      idx < getAvailableList().length - 1 && { borderBottomWidth: 1, borderBottomColor: palette.border }
                     ]}
                   >
                     <Text style={s.docIcon}>✓</Text>
@@ -623,7 +839,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
                       }}
                       style={[
                         s.docRow,
-                        idx < getMissingList().length - 1 && { borderBottomWidth: 1, borderBottomColor: Palette.border }
+                        idx < getMissingList().length - 1 && { borderBottomWidth: 1, borderBottomColor: palette.border }
                       ]}
                     >
                       <Text style={[s.docIcon, { color: isQueued ? '#3b82f6' : '#f59e0b' }]}>
@@ -675,7 +891,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
                       style={s.uploadOptionBtn}
                       activeOpacity={0.7}
                     >
-                      <Text style={{ fontSize: 24, fontWeight: '600', color: Palette.primary }}>Cam</Text>
+                      <Text style={{ fontSize: 24, fontWeight: '600', color: palette.primary }}>Cam</Text>
                       <View style={{ flex: 1 }}>
                         <Text style={s.optionTitle}>Use Device Camera</Text>
                         <Text style={s.optionDesc}>Capture document scan via real device camera preview</Text>
@@ -687,7 +903,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
                       style={s.uploadOptionBtn}
                       activeOpacity={0.7}
                     >
-                      <Text style={{ fontSize: 24, fontWeight: '600', color: Palette.primary }}>File</Text>
+                      <Text style={{ fontSize: 24, fontWeight: '600', color: palette.primary }}>File</Text>
                       <View style={{ flex: 1 }}>
                         <Text style={s.optionTitle}>Choose from Gallery</Text>
                         <Text style={s.optionDesc}>Select image document from local photo folders</Text>
@@ -793,7 +1009,7 @@ export function MyDocumentsScreen({ onBack }: Props) {
                       style={[s.uploadActionBtnSubmit, { flex: 1.5, opacity: isUploading ? 0.6 : 1 }]}
                     >
                       {isUploading ? (
-                        <ActivityIndicator color={Palette.white} size="small" />
+                        <ActivityIndicator color={palette.white} size="small" />
                       ) : (
                         <Text style={s.uploadSubmitText}>
                           {isOffline ? 'Save Offline' : 'Verify & Upload'}
@@ -811,217 +1027,4 @@ export function MyDocumentsScreen({ onBack }: Props) {
   );
 }
 
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Palette.background },
-  header: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16,
-    borderBottomWidth: 1, borderBottomColor: Palette.border,
-  },
-  backBtn: { width: 40, paddingVertical: 4 },
-  backIcon: { color: Palette.textSecondary, fontSize: 22 },
-  title: { flex: 1, textAlign: 'center', color: Palette.textPrimary, fontSize: 17, fontWeight: '700' },
-  body: { padding: 20, paddingBottom: 60 },
-  
-  // Queue panel styles
-  queuePanel: {
-    backgroundColor: '#eff6ff',
-    borderWidth: 1,
-    borderColor: '#bfdbfe',
-    borderRadius: 16,
-    padding: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    gap: 12
-  },
-  queueTitle: { fontSize: 14, fontWeight: '700', color: '#1e40af', marginBottom: 2 },
-  queueDesc: { fontSize: 12, color: '#3b82f6' },
-  syncBtn: {
-    backgroundColor: '#2563eb',
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  syncBtnText: { color: '#fff', fontSize: 12, fontWeight: '700' },
-
-  progressCard: {
-    flexDirection: 'row',
-    backgroundColor: Palette.surface,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    padding: 18,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  progressTextCol: { flex: 1, marginRight: 16 },
-  progressTitle: { fontSize: 16, fontWeight: '700', color: Palette.textPrimary, marginBottom: 6 },
-  progressDesc: { fontSize: 13, color: Palette.textSecondary, lineHeight: 18 },
-  progressCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    borderWidth: 4,
-    borderColor: Palette.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Palette.border,
-  },
-  progressPercent: { fontSize: 15, fontWeight: 'bold', color: Palette.textPrimary },
-  sectionTitle: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', color: Palette.textMuted, letterSpacing: 0.8, marginBottom: 12 },
-  listCard: {
-    backgroundColor: Palette.surface,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    overflow: 'hidden',
-    marginBottom: 20,
-  },
-  docRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-  },
-  docIcon: { fontSize: 20, fontWeight: 'bold', color: '#22c55e', marginRight: 16 },
-  docName: { fontSize: 15, fontWeight: '600', color: Palette.textPrimary, marginBottom: 4 },
-  docStatusText: { fontSize: 12, color: Palette.textMuted },
-  emptyRowText: { padding: 20, color: Palette.textMuted, fontSize: 13, textAlign: 'center' },
-
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: Palette.background,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingBottom: 40,
-    borderWidth: 1,
-    borderColor: Palette.border,
-  },
-  modalTitle: { fontSize: 20, fontWeight: '800', color: Palette.textPrimary, marginBottom: 8 },
-  modalDesc: { fontSize: 14, color: Palette.textSecondary, lineHeight: 20 },
-  uploadOptionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 18,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    backgroundColor: Palette.surface,
-    gap: 16,
-  },
-  optionTitle: { fontSize: 15, fontWeight: '700', color: Palette.textPrimary, marginBottom: 4 },
-  optionDesc: { fontSize: 12, color: Palette.textMuted },
-  modalCancelBtn: {
-    paddingVertical: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    alignItems: 'center',
-    backgroundColor: Palette.surface,
-    justifyContent: 'center'
-  },
-  cancelText: { color: Palette.textSecondary, fontWeight: '700', fontSize: 14 },
-  
-  uploadActionBtnSubmit: {
-    paddingVertical: 14,
-    borderRadius: 14,
-    backgroundColor: Palette.primary,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  uploadSubmitText: { color: Palette.white, fontWeight: '700', fontSize: 14 },
-
-  // Camera guides
-  viewfinder: {
-    width: Dimensions.get('window').width * 0.85,
-    height: Dimensions.get('window').width * 0.55,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.4)',
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  viewfinderCorner: {
-    position: 'absolute',
-    width: 24,
-    height: 24,
-    borderColor: '#fff',
-  },
-  viewfinderText: { color: '#fff', fontSize: 12, fontWeight: 'bold', letterSpacing: 1.5, opacity: 0.85 },
-  cameraControls: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 120,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingHorizontal: 20,
-  },
-  cameraSubBtn: { width: 80, alignItems: 'center' },
-  shutterBtn: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  shutterInner: {
-    width: 62,
-    height: 62,
-    borderRadius: 31,
-    borderWidth: 2.5,
-    borderColor: '#000',
-    backgroundColor: '#fff',
-  },
-
-  // Preview styling
-  previewFrameContainer: {
-    width: '100%',
-    height: 220,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    backgroundColor: '#000',
-    overflow: 'hidden',
-    marginVertical: 20,
-    justifyContent: 'center'
-  },
-  previewImage: {
-    width: '100%',
-    height: '100%'
-  },
-  sizeBadge: {
-    position: 'absolute',
-    bottom: 8,
-    right: 8,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 3
-  },
-  sizeBadgeText: { color: '#fff', fontSize: 9, fontWeight: '700' },
-
-  // Progress Bar
-  progressWrapper: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Palette.border,
-    width: '100%',
-    overflow: 'hidden',
-    marginBottom: 6,
-  },
-  progressWrapperFill: {
-    height: '100%',
-    backgroundColor: Palette.primary,
-  },
-  progressLabel: { fontSize: 11, color: Palette.textSecondary, fontWeight: 'bold', textAlign: 'right' }
-});
+// (styles moved inside component as useThemedStyles)

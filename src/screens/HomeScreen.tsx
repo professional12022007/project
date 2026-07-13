@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -8,7 +8,8 @@ import { useAuthStore } from '@/store/authStore';
 import { useThemeStore } from '@/store/themeStore';
 import { useWelfareScore } from '@/hooks/useWelfareScore';
 import { useMissedBenefits } from '@/hooks/useMissedBenefits';
-import { Palette } from '@/constants/theme';
+import { useNotifications } from '@/hooks/useNotifications';
+import { useThemedStyles, usePalette } from '@/hooks/useThemedStyles';
 import { WelfareScoreCard } from '@/components/ui/WelfareScoreCard';
 import { MissedBenefitsSection } from '@/components/ui/MissedBenefitsSection';
 import { SkeletonLoader } from '@/components/ui/SkeletonLoader';
@@ -21,34 +22,91 @@ const CITIZEN_ID_FALLBACK = 'citizen_101';
 export function HomeScreen() {
   const { user } = useAuthStore();
   const { mode, toggle } = useThemeStore();
+  const palette = usePalette();
   const citizenId = user?.id ?? CITIZEN_ID_FALLBACK;
   const { data: welfareData, isLoading: welfareLoading, refetch: refetchWelfare } = useWelfareScore(citizenId);
   const { data: missedData, isLoading: missedLoading, refetch: refetchMissed } = useMissedBenefits(citizenId);
+  const { unreadCount, refetch: refetchNotifs } = useNotifications(citizenId);
   const navigation = useNavigation<NavProp>();
 
   useFocusEffect(
     useCallback(() => {
       refetchWelfare();
       refetchMissed();
-    }, [refetchWelfare, refetchMissed])
+      refetchNotifs();
+    }, [refetchWelfare, refetchMissed, refetchNotifs])
   );
 
   const missedSchemes = missedData?.missedSchemes ?? [];
-  const unreadCount = 3;
+  const claimedCount = welfareData?.claimedSchemes ?? 0;
 
   const quickActions = [
-    { title: 'Roadmap', desc: 'View your future welfare journey', icon: <MapIcon size={22} color={Palette.primary} strokeWidth={2} />, onPress: () => navigation.navigate('Roadmap') },
-    { title: 'Assistant', desc: 'Ask questions about your schemes', icon: <MessageSquare size={22} color={Palette.primary} strokeWidth={2} />, onPress: () => navigation.navigate('Assistant') },
-    { title: 'Schemes', desc: 'View matched schemes', icon: <Landmark size={22} color={Palette.primary} strokeWidth={2} />, onPress: () => navigation.navigate('Schemes') },
-    { title: 'Upload Documents', desc: 'Complete verification', icon: <Upload size={22} color={Palette.primary} strokeWidth={2} />, onPress: () => navigation.navigate('Profile', { screen: 'documents' }) },
+    { title: 'Roadmap', desc: 'View your future welfare journey', icon: <MapIcon size={22} color={palette.primary} strokeWidth={2} />, onPress: () => navigation.navigate('Roadmap') },
+    { title: 'Assistant', desc: 'Ask questions about your schemes', icon: <MessageSquare size={22} color={palette.primary} strokeWidth={2} />, onPress: () => navigation.navigate('Assistant') },
+    { title: 'Schemes', desc: 'View matched schemes', icon: <Landmark size={22} color={palette.primary} strokeWidth={2} />, onPress: () => navigation.navigate('Schemes') },
+    { title: 'Upload Documents', desc: 'Complete verification', icon: <Upload size={22} color={palette.primary} strokeWidth={2} />, onPress: () => navigation.navigate('Profile', { screen: 'documents' }) },
   ];
+
+  const s = useThemedStyles((p) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: p.background },
+    header: {
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+      paddingHorizontal: 24, paddingTop: 16, paddingBottom: 20,
+    },
+    greeting: { color: p.textSecondary, fontSize: 13, marginBottom: 2 },
+    userName: { color: p.textPrimary, fontSize: 22, fontWeight: '700' },
+    headerRight: { flexDirection: 'row', gap: 10 },
+    themeBtn: {
+      padding: 10, borderRadius: 20, borderWidth: 1,
+      borderColor: p.border, backgroundColor: p.surface,
+    },
+    bellBtn: {
+      padding: 10, borderRadius: 20, borderWidth: 1,
+      borderColor: p.border, backgroundColor: p.surface,
+    },
+    bellDot: {
+      position: 'absolute', top: 8, right: 8,
+      width: 8, height: 8, borderRadius: 4, backgroundColor: p.error,
+    },
+    summaryRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 24, marginBottom: 12 },
+    summaryCard: {
+      flex: 1, borderRadius: 16, backgroundColor: p.surface,
+      borderWidth: 1, borderColor: p.border,
+      padding: 16, gap: 6,
+    },
+    summaryValue: { color: p.textPrimary, fontSize: 18, fontWeight: '800' },
+    summaryLabel: { color: p.textMuted, fontSize: 12 },
+    sectionTitle: {
+      color: p.textSecondary, fontSize: 11, fontWeight: '700',
+      letterSpacing: 1.5, textTransform: 'uppercase',
+      paddingHorizontal: 24, marginTop: 24, marginBottom: 14,
+    },
+    quickActionsGrid: {
+      flexDirection: 'row', flexWrap: 'wrap', gap: 12, paddingHorizontal: 24,
+    },
+    quickActionCard: {
+      width: '48%', borderRadius: 16, backgroundColor: p.surface,
+      borderWidth: 1, borderColor: p.border, padding: 16,
+      alignItems: 'center', gap: 8,
+    },
+    quickActionIconBox: {
+      width: 44, height: 44, borderRadius: 12,
+      backgroundColor: p.primaryA12, alignItems: 'center', justifyContent: 'center',
+    },
+    quickActionTitle: { color: p.textPrimary, fontSize: 14, fontWeight: '700' },
+    quickActionDesc: { color: p.textMuted, fontSize: 11, textAlign: 'center', lineHeight: 15 },
+    skeletonCard: {
+      padding: 18, borderRadius: 20, backgroundColor: p.surface,
+      borderWidth: 1, borderColor: p.border, gap: 8,
+    },
+  }));
 
   return (
     <SafeAreaView style={s.container} edges={['top']}>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={welfareLoading} onRefresh={refetchWelfare} tintColor={Palette.primary} />}
+        refreshControl={<RefreshControl refreshing={welfareLoading} onRefresh={refetchWelfare} tintColor={palette.primary} />}
       >
         {/* Header */}
         <View style={s.header}>
@@ -59,9 +117,9 @@ export function HomeScreen() {
           <View style={s.headerRight}>
             <TouchableOpacity onPress={toggle} style={s.themeBtn} activeOpacity={0.7}>
               {mode === 'dark' ? (
-                <Sun size={18} color={Palette.textSecondary} strokeWidth={2} />
+                <Sun size={18} color={palette.textSecondary} strokeWidth={2} />
               ) : (
-                <Moon size={18} color={Palette.textSecondary} strokeWidth={2} />
+                <Moon size={18} color={palette.textSecondary} strokeWidth={2} />
               )}
             </TouchableOpacity>
             <TouchableOpacity
@@ -69,7 +127,7 @@ export function HomeScreen() {
               style={s.bellBtn}
               activeOpacity={0.7}
             >
-              <Bell size={18} color={Palette.textPrimary} strokeWidth={2} />
+              <Bell size={18} color={palette.textPrimary} strokeWidth={2} />
               {unreadCount > 0 && <View style={s.bellDot} />}
             </TouchableOpacity>
           </View>
@@ -94,14 +152,14 @@ export function HomeScreen() {
         {/* Summary Cards */}
         <View style={s.summaryRow}>
           <View style={s.summaryCard}>
-            <Wallet size={18} color={Palette.success} strokeWidth={2} />
+            <Wallet size={18} color={palette.success} strokeWidth={2} />
             <Text style={s.summaryValue}>
               {'\u20B9'}{(welfareData?.currentBenefits ?? 0).toLocaleString('en-IN')}
             </Text>
             <Text style={s.summaryLabel}>Current Benefits</Text>
           </View>
           <View style={s.summaryCard}>
-            <TrendingUp size={18} color={Palette.primary} strokeWidth={2} />
+            <TrendingUp size={18} color={palette.primary} strokeWidth={2} />
             <Text style={s.summaryValue}>
               {'\u20B9'}{(welfareData?.potentialBenefits ?? 0).toLocaleString('en-IN')}
             </Text>
@@ -111,13 +169,13 @@ export function HomeScreen() {
 
         <View style={s.summaryRow}>
           <View style={s.summaryCard}>
-            <Landmark size={18} color={Palette.secondary} strokeWidth={2} />
+            <Landmark size={18} color={palette.secondary} strokeWidth={2} />
             <Text style={s.summaryValue}>{missedSchemes.length}</Text>
             <Text style={s.summaryLabel}>Eligible Schemes</Text>
           </View>
           <View style={s.summaryCard}>
-            <CheckCircle2 size={18} color={Palette.success} strokeWidth={2} />
-            <Text style={s.summaryValue}>0</Text>
+            <CheckCircle2 size={18} color={palette.success} strokeWidth={2} />
+            <Text style={s.summaryValue}>{claimedCount}</Text>
             <Text style={s.summaryLabel}>Claimed Schemes</Text>
           </View>
         </View>
@@ -156,57 +214,3 @@ export function HomeScreen() {
     </SafeAreaView>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Palette.background },
-  header: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: 24, paddingTop: 16, paddingBottom: 20,
-  },
-  greeting: { color: Palette.textSecondary, fontSize: 13, marginBottom: 2 },
-  userName: { color: Palette.textPrimary, fontSize: 22, fontWeight: '700' },
-  headerRight: { flexDirection: 'row', gap: 10 },
-  themeBtn: {
-    padding: 10, borderRadius: 20, borderWidth: 1,
-    borderColor: Palette.border, backgroundColor: Palette.surface,
-  },
-  bellBtn: {
-    padding: 10, borderRadius: 20, borderWidth: 1,
-    borderColor: Palette.border, backgroundColor: Palette.surface,
-  },
-  bellDot: {
-    position: 'absolute', top: 8, right: 8,
-    width: 8, height: 8, borderRadius: 4, backgroundColor: Palette.error,
-  },
-  summaryRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 24, marginBottom: 12 },
-  summaryCard: {
-    flex: 1, borderRadius: 16, backgroundColor: Palette.surface,
-    borderWidth: 1, borderColor: Palette.border,
-    padding: 16, gap: 6,
-  },
-  summaryValue: { color: Palette.textPrimary, fontSize: 18, fontWeight: '800' },
-  summaryLabel: { color: Palette.textMuted, fontSize: 12 },
-  sectionTitle: {
-    color: Palette.textSecondary, fontSize: 11, fontWeight: '700',
-    letterSpacing: 1.5, textTransform: 'uppercase',
-    paddingHorizontal: 24, marginTop: 24, marginBottom: 14,
-  },
-  quickActionsGrid: {
-    flexDirection: 'row', flexWrap: 'wrap', gap: 12, paddingHorizontal: 24,
-  },
-  quickActionCard: {
-    width: '48%', borderRadius: 16, backgroundColor: Palette.surface,
-    borderWidth: 1, borderColor: Palette.border, padding: 16,
-    alignItems: 'center', gap: 8,
-  },
-  quickActionIconBox: {
-    width: 44, height: 44, borderRadius: 12,
-    backgroundColor: Palette.primaryA12, alignItems: 'center', justifyContent: 'center',
-  },
-  quickActionTitle: { color: Palette.textPrimary, fontSize: 14, fontWeight: '700' },
-  quickActionDesc: { color: Palette.textMuted, fontSize: 11, textAlign: 'center', lineHeight: 15 },
-  skeletonCard: {
-    padding: 18, borderRadius: 20, backgroundColor: Palette.surface,
-    borderWidth: 1, borderColor: Palette.border, gap: 8,
-  },
-});

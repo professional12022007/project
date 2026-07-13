@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { CitizenProfile } from '@/lib/api/services/citizenService';
-import { Palette } from '@/constants/theme';
+import { usePalette } from '@/hooks/useThemedStyles';
 
 function formatINR(n: number | null) {
   if (n == null) return '—';
@@ -16,21 +16,22 @@ interface Props {
 }
 
 export function HouseholdCard({ profile, isLoading }: Props) {
+  const palette = usePalette();
   if (isLoading) {
     return (
       <View
         style={{
           marginHorizontal: 24,
           marginBottom: 24,
-          backgroundColor: Palette.surface,
+          backgroundColor: palette.surface,
           borderRadius: 20,
           borderWidth: 1,
-          borderColor: Palette.border,
+          borderColor: palette.border,
           padding: 20,
           alignItems: 'center',
         }}
       >
-        <ActivityIndicator color={Palette.primary} />
+        <ActivityIndicator color={palette.primary} />
       </View>
     );
   }
@@ -44,10 +45,10 @@ export function HouseholdCard({ profile, isLoading }: Props) {
       style={{
         marginHorizontal: 24,
         marginBottom: 24,
-        backgroundColor: Palette.surface,
+        backgroundColor: palette.surface,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: Palette.border,
+        borderColor: palette.border,
         overflow: 'hidden',
       }}
     >
@@ -60,24 +61,24 @@ export function HouseholdCard({ profile, isLoading }: Props) {
           paddingTop: 16,
           paddingBottom: 12,
           borderBottomWidth: 1,
-          borderBottomColor: Palette.border,
+          borderBottomColor: palette.border,
         }}
       >
-        <Text style={{ color: Palette.textPrimary, fontSize: 15, fontWeight: '700', flex: 1 }}>
+        <Text style={{ color: palette.textPrimary, fontSize: 15, fontWeight: '700', flex: 1 }}>
           Your Profile
         </Text>
         {profile.lifeStage && (
           <View
             style={{
-              backgroundColor: Palette.primaryA12,
+              backgroundColor: palette.primaryA12,
               borderRadius: 10,
               borderWidth: 1,
-              borderColor: Palette.primaryA44,
+              borderColor: palette.primaryA44,
               paddingHorizontal: 10,
               paddingVertical: 3,
             }}
           >
-            <Text style={{ color: Palette.primary, fontSize: 11, fontWeight: '700' }}>
+            <Text style={{ color: palette.primary, fontSize: 11, fontWeight: '700' }}>
               {profile.lifeStage}
             </Text>
           </View>
@@ -92,7 +93,7 @@ export function HouseholdCard({ profile, isLoading }: Props) {
           paddingVertical: 14,
           gap: 8,
           borderBottomWidth: hasFamily ? 1 : 0,
-          borderBottomColor: Palette.border,
+          borderBottomColor: palette.border,
         }}
       >
         {[
@@ -104,19 +105,19 @@ export function HouseholdCard({ profile, isLoading }: Props) {
             key={chip.label}
             style={{
               flex: 1,
-              backgroundColor: Palette.background,
+              backgroundColor: palette.background,
               borderRadius: 12,
               borderWidth: 1,
-              borderColor: Palette.border,
+              borderColor: palette.border,
               paddingVertical: 10,
               paddingHorizontal: 8,
               alignItems: 'center',
             }}
           >
-            <Text style={{ color: Palette.textPrimary, fontSize: 13, fontWeight: '700' }}>
+            <Text style={{ color: palette.textPrimary, fontSize: 13, fontWeight: '700' }}>
               {chip.value}
             </Text>
-            <Text style={{ color: Palette.textMuted, fontSize: 10, marginTop: 2 }}>
+            <Text style={{ color: palette.textMuted, fontSize: 10, marginTop: 2 }}>
               {chip.label}
             </Text>
           </View>
@@ -128,7 +129,7 @@ export function HouseholdCard({ profile, isLoading }: Props) {
         <View style={{ paddingHorizontal: 20, paddingBottom: 16, paddingTop: 12 }}>
           <Text
             style={{
-              color: Palette.textMuted,
+              color: palette.textMuted,
               fontSize: 10,
               fontWeight: '700',
               letterSpacing: 1,
@@ -146,7 +147,7 @@ export function HouseholdCard({ profile, isLoading }: Props) {
                 alignItems: 'center',
                 paddingVertical: 8,
                 borderTopWidth: idx > 0 ? 1 : 0,
-                borderTopColor: Palette.border,
+                borderTopColor: palette.border,
               }}
             >
               {/* Avatar bubble */}
@@ -155,30 +156,30 @@ export function HouseholdCard({ profile, isLoading }: Props) {
                   width: 32,
                   height: 32,
                   borderRadius: 16,
-                  backgroundColor: Palette.secondaryA0D,
+                  backgroundColor: palette.secondaryA0D,
                   borderWidth: 1,
-                  borderColor: Palette.secondaryA22,
+                  borderColor: palette.secondaryA22,
                   alignItems: 'center',
                   justifyContent: 'center',
                   marginRight: 12,
                   flexShrink: 0,
                 }}
               >
-                <Text style={{ color: Palette.secondary, fontSize: 13, fontWeight: '700' }}>
+                <Text style={{ color: palette.secondary, fontSize: 13, fontWeight: '700' }}>
                   {member.name?.charAt(0)?.toUpperCase() ?? '?'}
                 </Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: Palette.textPrimary, fontSize: 13, fontWeight: '600' }}>
+                <Text style={{ color: palette.textPrimary, fontSize: 13, fontWeight: '600' }}>
                   {member.name}
                 </Text>
-                <Text style={{ color: Palette.textMuted, fontSize: 11, marginTop: 1 }}>
+                <Text style={{ color: palette.textMuted, fontSize: 11, marginTop: 1 }}>
                   {member.relationship}
                   {member.age != null ? ` · ${member.age} yrs` : ''}
                 </Text>
               </View>
               {member.lifeStage && member.lifeStage !== 'General' && (
-                <Text style={{ color: Palette.textMuted, fontSize: 11 }}>
+                <Text style={{ color: palette.textMuted, fontSize: 11 }}>
                   {member.lifeStage}
                 </Text>
               )}

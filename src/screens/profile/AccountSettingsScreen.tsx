@@ -4,7 +4,8 @@ import {
   ScrollView, StyleSheet, Alert, BackHandler
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Palette } from '@/constants/theme';
+import { useThemedStyles, usePalette } from '@/hooks/useThemedStyles';
+import { ChevronLeft } from 'lucide-react-native';
 import { authService } from '@/lib/api/services/authService';
 import { useAuthStore } from '@/store/authStore';
 
@@ -14,6 +15,7 @@ const STATES = ['Uttar Pradesh', 'Karnataka', 'Delhi', 'Maharashtra', 'Tamil Nad
 const STAGES = ['Student', 'Graduate', 'Worker', 'Farmer', 'Homemaker', 'Senior Citizen'];
 
 export function AccountSettingsScreen({ onBack }: Props) {
+  const palette = usePalette();
   const { user, setUser } = useAuthStore();
 
   // Form states
@@ -23,6 +25,76 @@ export function AccountSettingsScreen({ onBack }: Props) {
   const [state, setState] = useState(user?.state ?? 'Uttar Pradesh');
   const [stage, setStage] = useState(user?.stage ?? user?.lifeStage ?? 'Student');
   const [saving, setSaving] = useState(false);
+
+  const s = useThemedStyles((p) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: p.background },
+    header: {
+      flexDirection: 'row', alignItems: 'center',
+      paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16,
+      borderBottomWidth: 1, borderBottomColor: p.border,
+    },
+    backBtn: { width: 40, paddingVertical: 4 },
+    title: { flex: 1, textAlign: 'center', color: p.textPrimary, fontSize: 17, fontWeight: '700' },
+    body: { padding: 20, paddingBottom: 48 },
+    card: {
+      backgroundColor: p.surface, borderRadius: 20,
+      borderWidth: 1, borderColor: p.border,
+      padding: 16, marginBottom: 16,
+    },
+    sectionLabel: {
+      color: p.textSecondary, fontSize: 11, fontWeight: '700',
+      letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12,
+    },
+    subLabel: {
+      fontSize: 12, color: p.textMuted, marginBottom: 6, fontWeight: '600'
+    },
+    input: {
+      backgroundColor: p.background, borderWidth: 1,
+      borderColor: p.border, borderRadius: 14,
+      paddingHorizontal: 14, paddingVertical: 11,
+      color: p.textPrimary, fontSize: 15,
+    },
+    chipRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    chip: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: p.border,
+      backgroundColor: p.background,
+    },
+    chipActive: {
+      backgroundColor: p.primary,
+      borderColor: p.primary,
+    },
+    chipText: {
+      fontSize: 12,
+      color: p.textSecondary,
+      fontWeight: '600',
+    },
+    chipTextActive: {
+      color: p.white,
+    },
+    readonlyField: {
+      backgroundColor: p.border, borderRadius: 14,
+      paddingHorizontal: 14, paddingVertical: 12,
+    },
+    readonlyText: { color: p.textSecondary, fontSize: 14, fontWeight: '600' },
+    hint: { color: p.textMuted, fontSize: 11, marginTop: 6, lineHeight: 16 },
+    saveBtn: {
+      backgroundColor: p.primary, borderRadius: 14,
+      paddingVertical: 15, alignItems: 'center',
+      shadowColor: p.primary, shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3, shadowRadius: 10, elevation: 5,
+      marginTop: 8,
+    },
+    btnDisabled: { opacity: 0.6 },
+    saveBtnText: { color: p.white, fontSize: 15, fontWeight: '700', letterSpacing: 0.3 },
+  }));
 
   useEffect(() => {
     const onBackPress = () => {
@@ -66,7 +138,7 @@ export function AccountSettingsScreen({ onBack }: Props) {
       {/* Header */}
       <View style={s.header}>
         <TouchableOpacity onPress={onBack} activeOpacity={0.7} style={s.backBtn}>
-          <Text style={s.backIcon}>←</Text>
+          <ChevronLeft size={22} color={palette.textSecondary} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={s.title}>Account Settings</Text>
         <View style={{ width: 40 }} />
@@ -81,7 +153,7 @@ export function AccountSettingsScreen({ onBack }: Props) {
             value={name}
             onChangeText={setName}
             placeholder="Your name"
-            placeholderTextColor={Palette.textMuted}
+            placeholderTextColor={palette.textMuted}
             autoCapitalize="words"
             returnKeyType="done"
           />
@@ -98,7 +170,7 @@ export function AccountSettingsScreen({ onBack }: Props) {
                 value={age}
                 onChangeText={setAge}
                 placeholder="21"
-                placeholderTextColor={Palette.textMuted}
+                placeholderTextColor={palette.textMuted}
                 keyboardType="numeric"
                 returnKeyType="done"
               />
@@ -110,7 +182,7 @@ export function AccountSettingsScreen({ onBack }: Props) {
                 value={income}
                 onChangeText={setIncome}
                 placeholder="150000"
-                placeholderTextColor={Palette.textMuted}
+                placeholderTextColor={palette.textMuted}
                 keyboardType="numeric"
                 returnKeyType="done"
               />
@@ -178,81 +250,10 @@ export function AccountSettingsScreen({ onBack }: Props) {
           disabled={saving}
         >
           {saving
-            ? <ActivityIndicator color={Palette.white} size="small" />
+            ? <ActivityIndicator color={palette.white} size="small" />
             : <Text style={s.saveBtnText}>Save Changes</Text>}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Palette.background },
-  header: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16,
-    borderBottomWidth: 1, borderBottomColor: Palette.border,
-  },
-  backBtn: { width: 40, paddingVertical: 4 },
-  backIcon: { color: Palette.textSecondary, fontSize: 22 },
-  title: { flex: 1, textAlign: 'center', color: Palette.textPrimary, fontSize: 17, fontWeight: '700' },
-  body: { padding: 20, paddingBottom: 48 },
-  card: {
-    backgroundColor: Palette.surface, borderRadius: 20,
-    borderWidth: 1, borderColor: Palette.border,
-    padding: 16, marginBottom: 16,
-  },
-  sectionLabel: {
-    color: Palette.textSecondary, fontSize: 11, fontWeight: '700',
-    letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12,
-  },
-  subLabel: {
-    fontSize: 12, color: Palette.textMuted, marginBottom: 6, fontWeight: '600'
-  },
-  input: {
-    backgroundColor: Palette.background, borderWidth: 1,
-    borderColor: Palette.border, borderRadius: 14,
-    paddingHorizontal: 14, paddingVertical: 11,
-    color: Palette.textPrimary, fontSize: 15,
-  },
-  chipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    backgroundColor: Palette.background,
-  },
-  chipActive: {
-    backgroundColor: Palette.primary,
-    borderColor: Palette.primary,
-  },
-  chipText: {
-    fontSize: 12,
-    color: Palette.textSecondary,
-    fontWeight: '600',
-  },
-  chipTextActive: {
-    color: Palette.white,
-  },
-  readonlyField: {
-    backgroundColor: Palette.border, borderRadius: 14,
-    paddingHorizontal: 14, paddingVertical: 12,
-  },
-  readonlyText: { color: Palette.textSecondary, fontSize: 14, fontWeight: '600' },
-  hint: { color: Palette.textMuted, fontSize: 11, marginTop: 6, lineHeight: 16 },
-  saveBtn: {
-    backgroundColor: Palette.primary, borderRadius: 14,
-    paddingVertical: 15, alignItems: 'center',
-    shadowColor: Palette.primary, shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3, shadowRadius: 10, elevation: 5,
-    marginTop: 8,
-  },
-  btnDisabled: { opacity: 0.6 },
-  saveBtnText: { color: Palette.white, fontSize: 15, fontWeight: '700', letterSpacing: 0.3 },
-});

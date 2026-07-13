@@ -8,6 +8,8 @@ export type WelfareScore = {
   score: number;
   currentBenefits: number;
   potentialBenefits: number;
+  eligibilityCount?: number;
+  claimedSchemes?: number;
 };
 
 export type MissedScheme = {
@@ -65,6 +67,12 @@ export const welfareService = {
    */
   getMissedBenefits: (citizenId: string) =>
     get<MissedBenefits>(`/api/missed-benefits/${citizenId}`),
+
+  /**
+   * Fetch schemes claimed by the citizen.
+   */
+  getClaimedSchemes: (citizenId: string) =>
+    get<{ claimedSchemes: { id: string; name: string; benefitAmount: number }[] }>(`/api/claimed-schemes/${citizenId}`),
 
   /**
    * Fetch detailed information for a single scheme.

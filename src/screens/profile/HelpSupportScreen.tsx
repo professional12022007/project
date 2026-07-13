@@ -3,7 +3,8 @@ import {
   View, Text, TouchableOpacity, ScrollView, StyleSheet, Linking, LayoutAnimation, BackHandler
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Palette } from '@/constants/theme';
+import { useThemedStyles, usePalette } from '@/hooks/useThemedStyles';
+import { ChevronLeft } from 'lucide-react-native';
 
 const FAQS = [
   {
@@ -31,6 +32,7 @@ const FAQS = [
 interface Props { onBack: () => void; }
 
 export function HelpSupportScreen({ onBack }: Props) {
+  const palette = usePalette();
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export function HelpSupportScreen({ onBack }: Props) {
     <SafeAreaView style={s.container} edges={['top']}>
       <View style={s.header}>
         <TouchableOpacity onPress={onBack} activeOpacity={0.7} style={s.backBtn}>
-          <Text style={s.backIcon}>←</Text>
+          <ChevronLeft size={22} color={palette.textSecondary} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={s.title}>Help & Support</Text>
         <View style={{ width: 40 }} />
@@ -66,7 +68,7 @@ export function HelpSupportScreen({ onBack }: Props) {
             <View
               key={idx}
               style={idx < FAQS.length - 1
-                ? { borderBottomWidth: 1, borderBottomColor: Palette.border }
+                ? { borderBottomWidth: 1, borderBottomColor: palette.border }
                 : undefined}
             >
               <TouchableOpacity
@@ -102,45 +104,44 @@ export function HelpSupportScreen({ onBack }: Props) {
   );
 }
 
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Palette.background },
-  header: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16,
-    borderBottomWidth: 1, borderBottomColor: Palette.border,
-  },
-  backBtn: { width: 40, paddingVertical: 4 },
-  backIcon: { color: Palette.textSecondary, fontSize: 22 },
-  title: { flex: 1, textAlign: 'center', color: Palette.textPrimary, fontSize: 17, fontWeight: '700' },
-  body: { padding: 24, paddingBottom: 48 },
-  sectionHeader: {
-    color: Palette.textSecondary, fontSize: 13, fontWeight: '700',
-    letterSpacing: 0.5, marginBottom: 12, marginTop: 8,
-  },
-  card: {
-    backgroundColor: Palette.surface, borderRadius: 20,
-    borderWidth: 1, borderColor: Palette.border,
-    overflow: 'hidden', marginBottom: 24,
-  },
-  faqQuestion: {
-    flexDirection: 'row', alignItems: 'flex-start',
-    paddingHorizontal: 20, paddingVertical: 16,
-  },
-  faqQ: { flex: 1, color: Palette.textPrimary, fontSize: 14, fontWeight: '600', lineHeight: 20 },
-  faqChevron: { color: Palette.textMuted, fontSize: 16, marginLeft: 12, marginTop: 2 },
-  faqA: {
-    color: Palette.textSecondary, fontSize: 13, lineHeight: 20,
-    paddingHorizontal: 20, paddingBottom: 16,
-  },
-  contactRow: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: Palette.surface, borderRadius: 20,
-    borderWidth: 1, borderColor: Palette.border,
-    paddingHorizontal: 20, paddingVertical: 18,
-  },
-  contactIcon: { fontSize: 22, marginRight: 14 },
-  contactText: { flex: 1 },
-  contactLabel: { color: Palette.textPrimary, fontSize: 15, fontWeight: '600', marginBottom: 2 },
-  contactSub: { color: Palette.textMuted, fontSize: 12 },
-  contactChevron: { color: Palette.textMuted, fontSize: 20, marginLeft: 8 },
-});
+  const s = useThemedStyles((p) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: p.background },
+    header: {
+      flexDirection: 'row', alignItems: 'center',
+      paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16,
+      borderBottomWidth: 1, borderBottomColor: p.border,
+    },
+    backBtn: { width: 40, paddingVertical: 4 },
+    title: { flex: 1, textAlign: 'center', color: p.textPrimary, fontSize: 17, fontWeight: '700' },
+    body: { padding: 24, paddingBottom: 48 },
+    sectionHeader: {
+      color: p.textSecondary, fontSize: 13, fontWeight: '700',
+      letterSpacing: 0.5, marginBottom: 12, marginTop: 8,
+    },
+    card: {
+      backgroundColor: p.surface, borderRadius: 20,
+      borderWidth: 1, borderColor: p.border,
+      overflow: 'hidden', marginBottom: 24,
+    },
+    faqQuestion: {
+      flexDirection: 'row', alignItems: 'flex-start',
+      paddingHorizontal: 20, paddingVertical: 16,
+    },
+    faqQ: { flex: 1, color: p.textPrimary, fontSize: 14, fontWeight: '600', lineHeight: 20 },
+    faqChevron: { color: p.textMuted, fontSize: 16, marginLeft: 12, marginTop: 2 },
+    faqA: {
+      color: p.textSecondary, fontSize: 13, lineHeight: 20,
+      paddingHorizontal: 20, paddingBottom: 16,
+    },
+    contactRow: {
+      flexDirection: 'row', alignItems: 'center',
+      backgroundColor: p.surface, borderRadius: 20,
+      borderWidth: 1, borderColor: p.border,
+      paddingHorizontal: 20, paddingVertical: 18,
+    },
+    contactIcon: { fontSize: 22, marginRight: 14 },
+    contactText: { flex: 1 },
+    contactLabel: { color: p.textPrimary, fontSize: 15, fontWeight: '600', marginBottom: 2 },
+    contactSub: { color: p.textMuted, fontSize: 12 },
+    contactChevron: { color: p.textMuted, fontSize: 20, marginLeft: 8 },
+  }));

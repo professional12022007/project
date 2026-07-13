@@ -17,7 +17,7 @@ import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { useAuthStore } from '@/store/authStore';
 import { useThemeStore } from '@/store/themeStore';
 import { authService } from '@/lib/api/services/authService';
-import { Palette } from '@/constants/theme';
+import { usePalette } from '@/hooks/useThemedStyles';
 import { Shield } from 'lucide-react-native';
 
 export type SchemeStackParamList = {
@@ -28,13 +28,14 @@ export type SchemeStackParamList = {
 const SchemeStack = createNativeStackNavigator<SchemeStackParamList>();
 
 function SchemesStackNavigator() {
+  const palette = usePalette();
   return (
     <SchemeStack.Navigator screenOptions={{ headerShown: false }}>
       <SchemeStack.Screen name="SchemesList" component={SchemesScreen} />
       <SchemeStack.Screen
         name="SchemeDetail"
         component={SchemeDetailScreen}
-        options={{ headerShown: true, headerTintColor: Palette.textPrimary, headerStyle: { backgroundColor: Palette.surface }, headerTitleStyle: { fontSize: 16, fontWeight: '700' } }}
+        options={{ headerShown: true, headerTintColor: palette.textPrimary, headerStyle: { backgroundColor: palette.surface }, headerTitleStyle: { fontSize: 16, fontWeight: '700' } }}
       />
     </SchemeStack.Navigator>
   );
@@ -51,6 +52,7 @@ export type BottomTabParamList = {
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 function MainTabs() {
+  const palette = usePalette();
   const insets = useSafeAreaInsets();
 
   return (
@@ -60,8 +62,8 @@ function MainTabs() {
         // Hide the tab bar when the keyboard is open on Android.
         tabBarHideOnKeyboard: Platform.OS === 'android',
         tabBarStyle: {
-          backgroundColor: Palette.surface,
-          borderTopColor: Palette.border,
+          backgroundColor: palette.surface,
+          borderTopColor: palette.border,
           borderTopWidth: 1,
           // Dynamically grow to accommodate the phone's gesture bar
           height: 56 + (insets.bottom > 0 ? insets.bottom : 12),
@@ -70,8 +72,8 @@ function MainTabs() {
           elevation: 0,
           shadowOpacity: 0,
         },
-        tabBarActiveTintColor: Palette.primary,
-        tabBarInactiveTintColor: Palette.textMuted,
+        tabBarActiveTintColor: palette.primary,
+        tabBarInactiveTintColor: palette.textMuted,
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
@@ -93,6 +95,7 @@ function MainTabs() {
 }
 
 export function RootNavigator() {
+  const palette = usePalette();
   const { isAuthenticated, setToken, setUser, logout } = useAuthStore();
   const { mode, init } = useThemeStore();
   const [sessionRestored, setSessionRestored] = useState(false);
@@ -145,16 +148,16 @@ export function RootNavigator() {
 
   if (!sessionRestored) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Palette.background, gap: 16 }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: palette.background, gap: 16 }}>
         <View style={{
           width: 64, height: 64, borderRadius: 32,
-          backgroundColor: Palette.primary,
+          backgroundColor: palette.primary,
           alignItems: 'center', justifyContent: 'center',
         }}>
-          <Shield size={28} color={Palette.white} strokeWidth={2.5} />
+          <Shield size={28} color={palette.white} strokeWidth={2.5} />
         </View>
-        <Text style={{ color: Palette.textPrimary, fontSize: 22, fontWeight: '800' }}>BenefitOS</Text>
-        <ActivityIndicator color={Palette.primary} size="small" />
+        <Text style={{ color: palette.textPrimary, fontSize: 22, fontWeight: '800' }}>BenefitOS</Text>
+        <ActivityIndicator color={palette.primary} size="small" />
       </View>
     );
   }

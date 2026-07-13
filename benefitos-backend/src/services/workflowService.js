@@ -4,6 +4,20 @@ const welfareService = require("./welfareService");
 const roadmapService = require("./roadmapService");
 const notificationQueries = require("../queries/notificationQueries");
 
+async function hasExistingNotification(citizenId, type, partialMessage) {
+  try {
+    const existing = await db.runQuery(
+      `MATCH (c:Citizen {id: $citizenId})-[:HAS_NOTIFICATION]->(n:Notification {type: $type})
+       WHERE n.message CONTAINS $partial
+       RETURN count(n) AS cnt`,
+      { citizenId, type, partial: partialMessage.slice(0, 60) }
+    );
+    return existing[0]?.cnt > 0;
+  } catch {
+    return false;
+  }
+}
+
 exports.runRecalculationWorkflowForCitizen = async (citizenId) => {
   console.log(`[Workflow] Starting welfare recalculation for citizen: ${citizenId}`);
 
@@ -24,12 +38,16 @@ exports.runRecalculationWorkflowForCitizen = async (citizenId) => {
   let newNotifsCount = 0;
   for (const scheme of afterSchemes) {
     if (!beforeIds.has(scheme.id)) {
-      await notificationQueries.createNotification(citizenId, {
-        type: "newly_eligible",
-        title: "New Scheme Available",
-        message: `You are now eligible to apply for "${scheme.name}" representing \u20B9${(scheme.benefitAmount || 0).toLocaleString()} in potential benefits.`,
-      }).catch(err => console.error("[Workflow] Failed to save newly_eligible notification:", err.message));
-      newNotifsCount++;
+      const msg = `You are now eligible to apply for "${scheme.name}" representing \u20B9${(scheme.benefitAmount || 0).toLocaleString()} in potential benefits.`;
+      const exists = await hasExistingNotification(citizenId, "newly_eligible", msg);
+      if (!exists) {
+        await notificationQueries.createNotification(citizenId, {
+          type: "newly_eligible",
+          title: "New Scheme Available",
+          message: msg,
+        }).catch(err => console.error("[Workflow] Failed to save newly_eligible notification:", err.message));
+        newNotifsCount++;
+      }
     }
   }
 
@@ -37,12 +55,16 @@ exports.runRecalculationWorkflowForCitizen = async (citizenId) => {
   const readiness = await citizenService.getDocumentReadiness(citizenId).catch(() => null);
   if (readiness && readiness.missing) {
     for (const doc of readiness.missing) {
-      await notificationQueries.createNotification(citizenId, {
-        type: "missing_documents",
-        title: "Missing Document Alert",
-        message: `Upload your verified "${doc.name}" to unlock additional government welfare schemes.`,
-      }).catch(err => console.error("[Workflow] Failed to save missing_documents notification:", err.message));
-      newNotifsCount++;
+      const msg = `Upload your verified "${doc.name}" to unlock additional government welfare schemes.`;
+      const exists = await hasExistingNotification(citizenId, "missing_documents", msg);
+      if (!exists) {
+        await notificationQueries.createNotification(citizenId, {
+          type: "missing_documents",
+          title: "Missing Document Alert",
+          message: msg,
+        }).catch(err => console.error("[Workflow] Failed to save missing_documents notification:", err.message));
+        newNotifsCount++;
+      }
     }
   }
 
@@ -54,12 +76,16 @@ exports.runRecalculationWorkflowForCitizen = async (citizenId) => {
     if (!profile.income) missingFields.push("income");
     if (!profile.state) missingFields.push("state");
     if (missingFields.length > 0) {
-      await notificationQueries.createNotification(citizenId, {
-        type: "profile_incomplete",
-        title: "Profile Incomplete",
-        message: `Complete your profile by adding: ${missingFields.join(", ")}. A complete profile ensures accurate scheme recommendations.`,
-      }).catch(err => console.error("[Workflow] Failed to save profile_incomplete notification:", err.message));
-      newNotifsCount++;
+      const msg = `Complete your profile by adding: ${missingFields.join(", ")}. A complete profile ensures accurate scheme recommendations.`;
+      const exists = await hasExistingNotification(citizenId, "profile_incomplete", msg);
+      if (!exists) {
+        await notificationQueries.createNotification(citizenId, {
+          type: "profile_incomplete",
+          title: "Profile Incomplete",
+          message: msg,
+        }).catch(err => console.error("[Workflow] Failed to save profile_incomplete notification:", err.message));
+        newNotifsCount++;
+      }
     }
   }
 
@@ -68,12 +94,16 @@ exports.runRecalculationWorkflowForCitizen = async (citizenId) => {
   if (roadmap && roadmap.nextStage && roadmap.nextStage !== "Terminal State") {
     const opportunities = roadmap.opportunities || [];
     if (opportunities.length > 0) {
-      await notificationQueries.createNotification(citizenId, {
-        type: "roadmap_milestone",
-        title: "Upcoming Life Stage Transition",
-        message: `Your next life stage "${roadmap.nextStage}" has ${opportunities.length} scheme(s) available. Check your roadmap for details.`,
-      }).catch(err => console.error("[Workflow] Failed to save roadmap_milestone notification:", err.message));
-      newNotifsCount++;
+      const msg = `Your next life stage "${roadmap.nextStage}" has ${opportunities.length} scheme(s) available. Check your roadmap for details.`;
+      const exists = await hasExistingNotification(citizenId, "roadmap_milestone", msg);
+      if (!exists) {
+        await notificationQueries.createNotification(citizenId, {
+          type: "roadmap_milestone",
+          title: "Upcoming Life Stage Transition",
+          message: msg,
+        }).catch(err => console.error("[Workflow] Failed to save roadmap_milestone notification:", err.message));
+        newNotifsCount++;
+      }
     }
   }
 

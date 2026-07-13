@@ -6,6 +6,7 @@ const rateLimiter = require("../middleware/rateLimiter");
 
 // Secure all citizen-specific intelligence endpoints
 router.get("/welfare-score/:citizenId", authMiddleware, authMiddleware.authorizeCitizen, rateLimiter.graphLimiter, intelCtrl.getWelfareScore);
+router.get("/missed-benefits/:citizenId", authMiddleware, authMiddleware.authorizeCitizen, rateLimiter.graphLimiter, intelCtrl.getMissedBenefits);
 router.get('/claimed-schemes/:citizenId', authMiddleware, authMiddleware.authorizeCitizen, rateLimiter.graphLimiter, intelCtrl.getClaimedSchemes);
 router.get("/readiness/:citizenId", authMiddleware, authMiddleware.authorizeCitizen, rateLimiter.graphLimiter, intelCtrl.getDocumentReadiness);
 router.get("/roadmap/:citizenId", authMiddleware, authMiddleware.authorizeCitizen, rateLimiter.graphLimiter, intelCtrl.getRoadmap);

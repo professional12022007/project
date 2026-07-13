@@ -2,61 +2,66 @@
  * BenefitOS Design System — single source of truth for all colors and spacing.
  *
  * Two palettes: dark and light. The theme store selects which one is active.
- * Screens import `Palette` (the active palette) directly for inline styles.
- * `Colors` is exported for use-theme.ts compatibility (Colors[scheme]).
+ * Screens use `useThemedStyles` hook for reactive styles, or `useThemeStore`
+ * for inline palette access.
  */
 
 // ---------------------------------------------------------------------------
-// Dark palette
+// Dark palette — premium government-grade dark theme
+// Inspired by Passport Seva, DigiLocker, UMANG
 // ---------------------------------------------------------------------------
 const DarkPalette = {
   // Backgrounds
-  background: '#0F0F1A',
-  surface: '#16162A',
-  border: '#252545',
+  background: '#0B1220',
+  surface: '#111827',
+  border: '#273449',
 
-  // Primary accent
-  primary: '#5B54D6',
-  primaryA12: '#5B54D612',
-  primaryA14: '#5B54D614',
-  primaryA18: '#5B54D618',
-  primaryA22: '#5B54D622',
-  primaryA33: '#5B54D633',
-  primaryA44: '#5B54D644',
-  primaryA55: '#5B54D655',
+  // Primary accent — government blue
+  primary: '#2563EB',
+  primaryA12: '#2563EB12',
+  primaryA14: '#2563EB14',
+  primaryA18: '#2563EB18',
+  primaryA22: '#2563EB22',
+  primaryA33: '#2563EB33',
+  primaryA44: '#2563EB44',
+  primaryA55: '#2563EB55',
 
-  // Secondary accent — muted teal
-  secondary: '#3D9DB8',
-  secondaryA0D: '#3D9DB80D',
-  secondaryA22: '#3D9DB822',
-  secondaryA44: '#3D9DB844',
-  secondaryA66: '#3D9DB866',
+  // Secondary accent — cyan
+  secondary: '#06B6D4',
+  secondaryA0D: '#06B6D40D',
+  secondaryA22: '#06B6D422',
+  secondaryA44: '#06B6D444',
+  secondaryA66: '#06B6D466',
 
-  // Success — muted green
-  success: '#3FA66B',
-  successA18: '#3FA66B18',
-  successA33: '#3FA66B33',
+  // Success — green
+  success: '#16A34A',
+  successA18: '#16A34A18',
+  successA33: '#16A34A33',
 
-  // Error — muted rose
-  error: '#D6566E',
-  errorA15: '#D6566E15',
-  errorA18: '#D6566E18',
-  errorA20: '#D6566E20',
-  errorA40: '#D6566E40',
-  errorA44: '#D6566E44',
+  // Error — red
+  error: '#DC2626',
+  errorA15: '#DC262615',
+  errorA18: '#DC262618',
+  errorA20: '#DC262620',
+  errorA40: '#DC262640',
+  errorA44: '#DC262644',
+
+  // Warning
+  warning: '#D97706',
+  warningA18: '#D9770618',
 
   // Text
-  textPrimary: '#EDEDF5',
-  textSecondary: '#9999BB',
-  textMuted: '#555577',
+  textPrimary: '#F8FAFC',
+  textSecondary: '#CBD5E1',
+  textMuted: '#64748B',
 
   // Absolute
   white: '#FFFFFF',
   black: '#000000',
 
   // Functional
-  recordingRed: '#D94040',
-  amber: '#F59E0B',
+  recordingRed: '#DC2626',
+  amber: '#D97706',
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -97,6 +102,10 @@ const LightPalette = {
   errorA20: '#C53C3C20',
   errorA40: '#C53C3C40',
   errorA44: '#C53C3C44',
+
+  // Warning
+  warning: '#D97706',
+  warningA18: '#D9770618',
 
   // Text
   textPrimary: '#1A1D2E',
